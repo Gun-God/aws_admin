@@ -3,7 +3,9 @@ package cn.timelost.aws.service.impl;
 import cn.timelost.aws.entity.AwsScan;
 import cn.timelost.aws.mapper.AwsScanMapper;
 import cn.timelost.aws.service.AwsScanService;
+import cn.timelost.aws.vo.ResultVo;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,4 +19,23 @@ import org.springframework.stereotype.Service;
 @Service
 public class AwsScanServiceImpl extends ServiceImpl<AwsScanMapper, AwsScan> implements AwsScanService {
 
+    @Override
+    public PageInfo<AwsScan> findList(int pageNum, int pageSize) {
+        return null;
+    }
+
+    @Override
+    public ResultVo deleteById(int id) {
+        return null;
+    }
+
+    @Override
+    public ResultVo insert(AwsScan scan) {
+        return null;
+    }
+
+    @Override
+    public ResultVo updateUserById(AwsScan scan) {
+        return null;
+    }
 }
