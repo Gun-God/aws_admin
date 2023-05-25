@@ -1,7 +1,7 @@
-#  基于SpringBoot的人事管理系统
+#  基于SpringBoot的治超治限系统
 
 #### 系统介绍
-本系统为职工人事管理系统，系统分为七大模块：职工管理，部门管理，岗位管理，招聘管理，奖惩管理，薪资管理，培训管理
+
 
 #### 主要技术
 Springboot+MyBatis+MySQL+Layui-mini后台框架 
