@@ -32,7 +32,7 @@ public class AwsScanController {
     }
 
 
-    @RequestMapping(value = "/insertOrg", method = RequestMethod.POST)
+    @RequestMapping(value = "/insertScan", method = RequestMethod.POST)
     ////@RequiresRoles("admin")
     public ResultVo add(@RequestBody AwsScan scan) {
         return scanService.insert(scan);
@@ -49,7 +49,7 @@ public class AwsScanController {
     @RequestMapping(value = "/updateById", method = RequestMethod.POST)
     //@RequiresRoles("admin")
     public ResultVo update(@RequestBody AwsScan scan) {
-        return scanService.updateUserById(scan);
+        return scanService.updateScanById(scan);
     }
 
 

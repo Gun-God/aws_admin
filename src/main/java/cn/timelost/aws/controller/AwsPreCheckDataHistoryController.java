@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -36,13 +37,15 @@ public class AwsPreCheckDataHistoryController {
     @RequestMapping(value = "/getHistoryList", method = RequestMethod.GET)
     public PageInfo<AwsPreCheckDataHistory> getPreCheckDataHistoryList(@RequestParam(value = "page") Integer page,
                                                                        @RequestParam(value = "size") Integer size,
-                                                                       @RequestParam(value = "carNo",required = false) String carNo,
-                                                                       @RequestParam(value = "lane",required = false) Integer lane,
-                                                                       @RequestParam(value = "amtS",required = false) Integer amtS,
-                                                                       @RequestParam(value = "amtE",required = false) Integer amtE,
-                                                                       @RequestParam(value = "limitAmt",required = false) Double limitAmt,
-                                                                       @RequestParam(value = "axisNum",required = false) Integer axisNum){
-        return preCheckDataHistoryService.findAll(page, size,carNo,lane,limitAmt,axisNum);
+                                                                       @RequestParam(value = "carNo", required = false) String carNo,
+                                                                       @RequestParam(value = "lane", required = false) Integer lane,
+                                                                       @RequestParam(value = "amtS", required = false) Integer amtS,
+                                                                       @RequestParam(value = "amtE", required = false) Integer amtE,
+                                                                       @RequestParam(value = "limitAmt", required = false) Double limitAmt,
+                                                                       @RequestParam(value = "axisNum", required = false) Integer axisNum,
+                                                                       @RequestParam(value = "startT", required = false) String startT,
+                                                                       @RequestParam(value = "endT", required = false) String endT) {
+        return preCheckDataHistoryService.findAll(page, size, carNo, lane, limitAmt, axisNum, startT, endT);
     }
 
 }

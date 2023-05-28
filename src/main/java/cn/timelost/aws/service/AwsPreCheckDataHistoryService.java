@@ -15,7 +15,7 @@ import com.github.pagehelper.PageInfo;
  */
 public interface AwsPreCheckDataHistoryService extends IService<AwsPreCheckDataHistory> {
 
-    PageInfo<AwsPreCheckDataHistory> findAll(int pageNum, int pageSize,String carNo,Integer lane,Double limitAmt,Integer axisNum);
+    PageInfo<AwsPreCheckDataHistory> findAll(int pageNum, int pageSize, String carNo, Integer lane, Double limitAmt, Integer axisNum, String startT, String endT);
 
 
 }

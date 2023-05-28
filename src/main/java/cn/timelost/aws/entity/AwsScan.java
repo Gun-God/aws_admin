@@ -1,6 +1,7 @@
 package cn.timelost.aws.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -79,6 +80,9 @@ public class AwsScan implements Serializable {
      * 设备唯一标识
      */
     private String deviceId;
+
+    @TableField(exist = false)
+    private String orgName;
 
 
 }

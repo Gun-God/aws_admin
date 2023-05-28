@@ -62,4 +62,11 @@ public class ResultVo<T> implements Serializable {
         ResultVO.msg = msg;
         return ResultVO;
     }
+
+    public static <T> ResultVo<T> fail(String msg) {
+        ResultVo<T> ResultVO = new ResultVo<>();
+        ResultVO.code = ResultEnum.ERROR.getCode();
+        ResultVO.msg = msg;
+        return ResultVO;
+    }
 }

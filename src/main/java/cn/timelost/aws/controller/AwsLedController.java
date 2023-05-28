@@ -30,8 +30,11 @@ public class AwsLedController {
 
     @RequestMapping(value = "/getLedList", method = RequestMethod.GET)
     public PageInfo<AwsLed> getLedList(@RequestParam(value = "page") Integer page,
-                                                   @RequestParam(value = "size") Integer size){
-        return ledService.findAll(page, size);
+                                       @RequestParam(value = "size") Integer size,
+                                       @RequestParam(value = "carNo", required = false) String carNo,
+                                       @RequestParam(value = "startT", required = false) String startT,
+                                       @RequestParam(value = "endT", required = false) String endT) {
+        return ledService.findAll(page, size, carNo, startT, endT);
     }
 
 }

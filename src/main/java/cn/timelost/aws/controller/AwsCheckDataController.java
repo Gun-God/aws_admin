@@ -31,8 +31,16 @@ public class AwsCheckDataController {
 
     @RequestMapping(value = "/getCheckDataList", method = RequestMethod.GET)
     public PageInfo<AwsCheckData> getCheckDataList(@RequestParam(value = "page") Integer page,
-                                                             @RequestParam(value = "size") Integer size){
-        return checkDataService.findAll(page, size);
+                                                   @RequestParam(value = "size") Integer size,
+                                                   @RequestParam(value = "carNo", required = false) String carNo,
+                                                   @RequestParam(value = "lane", required = false) Integer lane,
+                                                   @RequestParam(value = "amtS", required = false) Integer amtS,
+                                                   @RequestParam(value = "amtE", required = false) Integer amtE,
+                                                   @RequestParam(value = "limitAmt", required = false) Double limitAmt,
+                                                   @RequestParam(value = "axisNum", required = false) Integer axisNum,
+                                                   @RequestParam(value = "startT", required = false) String startT,
+                                                   @RequestParam(value = "endT", required = false) String endT) {
+        return checkDataService.findAll(page, size, carNo, lane, limitAmt, axisNum, startT, endT);
     }
 
 }

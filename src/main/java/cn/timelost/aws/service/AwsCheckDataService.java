@@ -14,7 +14,7 @@ import com.github.pagehelper.PageInfo;
  */
 public interface AwsCheckDataService extends IService<AwsCheckData> {
 
-    PageInfo<AwsCheckData> findAll(int pageNum, int pageSize);
+    PageInfo<AwsCheckData> findAll(int pageNum, int pageSize, String carNo, Integer lane, Double limitAmt, Integer axisNum, String startT, String endT);
 
 
 }

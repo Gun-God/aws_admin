@@ -2,6 +2,7 @@ package cn.timelost.aws.service.impl;
 
 import cn.timelost.aws.entity.AwsCheckData;
 import cn.timelost.aws.entity.AwsLed;
+import cn.timelost.aws.entity.AwsPreCheckDataHistory;
 import cn.timelost.aws.mapper.AwsLedMapper;
 import cn.timelost.aws.service.AwsLedService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -11,6 +12,8 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -28,9 +31,21 @@ public class AwsLedServiceImpl extends ServiceImpl<AwsLedMapper, AwsLed> impleme
     AwsLedMapper ledMapper;
 
     @Override
-    public PageInfo<AwsLed> findAll(int pageNum, int pageSize) {
+    public PageInfo<AwsLed> findAll(int pageNum, int pageSize, String carNo, String startT, String endT) {
+        SimpleDateFormat sm = new SimpleDateFormat("yyyy-MM-dd");
+        QueryWrapper<AwsLed> qw = new QueryWrapper<>();
+        if (!("").equals(carNo) && carNo != null)
+            qw.like("content", carNo);
+        if (startT != null && !startT.equals("")) {
+            try {
+                qw.lambda().between(AwsLed::getCreateTime, sm.parse(startT), sm.parse(endT));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        qw.orderByDesc("create_time");
         PageHelper.startPage(pageNum, pageSize);
-        List<AwsLed> ledList=ledMapper.selectList(new QueryWrapper<AwsLed>().orderByDesc("create_time"));
+        List<AwsLed> ledList = ledMapper.selectList(qw);
         return new PageInfo<>(ledList);
     }
 }

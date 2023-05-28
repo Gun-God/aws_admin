@@ -22,7 +22,7 @@ public interface AwsScanService extends IService<AwsScan> {
 
     ResultVo insert(AwsScan scan);
 
-    ResultVo updateUserById(AwsScan scan);
+    ResultVo updateScanById(AwsScan scan);
 
 
 }

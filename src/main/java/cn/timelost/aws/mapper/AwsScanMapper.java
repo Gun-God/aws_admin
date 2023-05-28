@@ -3,6 +3,9 @@ package cn.timelost.aws.mapper;
 import cn.timelost.aws.entity.AwsScan;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 /**
  * <p>
@@ -14,5 +17,17 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface AwsScanMapper extends BaseMapper<AwsScan> {
+
+    @Select("<script>" +
+            "SELECT\n" +
+            "\tu.*,\n" +
+            "\to.NAME org_name \n" +
+            "FROM\n" +
+            "\taws_scan u LEFT JOIN\n" +
+            "\taws_nsp_org o on \tu.org_code = o.code \n" +
+            "WHERE\n" +
+            "\t u.state !=0" +
+            "</script>")
+    List<AwsScan> selectAll();
 
 }
