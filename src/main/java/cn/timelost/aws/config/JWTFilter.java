@@ -61,9 +61,13 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
         if (ObjectUtils.isEmpty(token)) {
             token = httpServletRequest.getParameter("token");
             if (ObjectUtils.isEmpty(token)) {
-                log.error("未携带Token，禁止访问接口" + ((HttpServletRequest) request).getRequestURI());
-                tokenError(response, "未携带Token，禁止访问接口");
-                return false;
+                token = httpServletRequest.getHeader("Sec-WebSocket-Protocol");
+                if (ObjectUtils.isEmpty(token)) {
+                    log.error("未携带Token，禁止访问接口" + ((HttpServletRequest) request).getRequestURI());
+                    tokenError(response, "未携带Token，禁止访问接口");
+                    return false;
+                }
+
             }
         }
         //3. 如果有，对进行进行token验证

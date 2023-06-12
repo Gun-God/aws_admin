@@ -53,7 +53,7 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
                 vo1.setLimitAmt(preCheckData.getLimitAmt());
                 vo1.setWeight(preCheckData.getWeight());
                 Integer carType = preCheckData.getCarTypeId();
-                if (carType!=null){
+                if (carType != null) {
                     AwsCarType car = carTypeMapper.selectById(carType);
                     vo1.setHeight(car.getHeight());
                     vo1.setLength(car.getLength());

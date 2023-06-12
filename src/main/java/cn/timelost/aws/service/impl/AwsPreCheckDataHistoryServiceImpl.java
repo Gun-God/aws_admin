@@ -51,7 +51,6 @@ public class AwsPreCheckDataHistoryServiceImpl extends ServiceImpl<AwsPreCheckDa
                 e.printStackTrace();
             }
         }
-        // qw.between("create_time",startT,endT);
         qw.orderByDesc("create_time");
         PageHelper.startPage(pageNum, pageSize);
         List<AwsPreCheckDataHistory> historyList = preCheckDataHistoryMapper.selectList(qw);

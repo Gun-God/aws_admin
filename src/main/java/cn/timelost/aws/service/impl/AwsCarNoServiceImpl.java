@@ -1,7 +1,6 @@
 package cn.timelost.aws.service.impl;
 
 import cn.timelost.aws.entity.AwsCarNo;
-import cn.timelost.aws.entity.AwsPreCheckDataHistory;
 import cn.timelost.aws.mapper.AwsCarNoMapper;
 import cn.timelost.aws.service.AwsCarNoService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;

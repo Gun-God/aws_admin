@@ -73,7 +73,7 @@ public class ShiroConfig {
         filterRuleMap.put("/user/login", "anon");
         filterRuleMap.put("/login**", "anon");
         filterRuleMap.put("/get_info", "anon");
-
+        filterRuleMap.put("/websocket/*", "anon");
         //开放API文档接口
 //        filterRuleMap.put("/swagger-ui.html", "anon");
 //        filterRuleMap.put("/webjars/**","anon");

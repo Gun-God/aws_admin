@@ -1,8 +1,6 @@
 package cn.timelost.aws.service.impl;
 
 import cn.timelost.aws.entity.AwsCheckData;
-import cn.timelost.aws.entity.AwsLed;
-import cn.timelost.aws.entity.AwsPreCheckDataHistory;
 import cn.timelost.aws.mapper.AwsCheckDataMapper;
 import cn.timelost.aws.service.AwsCheckDataService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
