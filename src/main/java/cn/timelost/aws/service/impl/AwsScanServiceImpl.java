@@ -4,6 +4,7 @@ import cn.timelost.aws.entity.AwsScan;
 import cn.timelost.aws.enums.ResultEnum;
 import cn.timelost.aws.mapper.AwsScanMapper;
 import cn.timelost.aws.service.AwsScanService;
+import cn.timelost.aws.service.AwsUserLogService;
 import cn.timelost.aws.vo.ResultVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -26,6 +27,8 @@ import java.util.List;
 public class AwsScanServiceImpl extends ServiceImpl<AwsScanMapper, AwsScan> implements AwsScanService {
     @Autowired
     AwsScanMapper scanMapper;
+    @Autowired
+    AwsUserLogService logService;
 
     @Override
     public PageInfo<AwsScan> findList(int pageNum, int pageSize) {
@@ -42,6 +45,7 @@ public class AwsScanServiceImpl extends ServiceImpl<AwsScanMapper, AwsScan> impl
         scan.setState(0);
         if (scanMapper.updateById(scan) == 0)
             return ResultVo.fail(ResultEnum.ERROR);
+        logService.InsertUserLog("删除设备:"+scan.getCode(),1);
         return ResultVo.success();
     }
 
@@ -53,6 +57,7 @@ public class AwsScanServiceImpl extends ServiceImpl<AwsScanMapper, AwsScan> impl
         scan.setId(null);
         if (scanMapper.insert(scan) == 0)
             return ResultVo.fail(ResultEnum.ERROR);
+        logService.InsertUserLog("添加设备",1);
         return ResultVo.success();
     }
 
@@ -62,6 +67,7 @@ public class AwsScanServiceImpl extends ServiceImpl<AwsScanMapper, AwsScan> impl
             return ResultVo.fail("设备不存在");
         if (scanMapper.updateById(scan) == 0)
             return ResultVo.fail(ResultEnum.ERROR);
+        logService.InsertUserLog("修改设备:"+scan.getCode(),1);
         return ResultVo.success();
     }
 }

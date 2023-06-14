@@ -6,6 +6,7 @@ import cn.timelost.aws.entity.vo.AwsUserForm;
 import cn.timelost.aws.enums.ResultEnum;
 import cn.timelost.aws.mapper.AwsRoleMapper;
 import cn.timelost.aws.mapper.AwsUserMapper;
+import cn.timelost.aws.service.AwsUserLogService;
 import cn.timelost.aws.service.AwsUserService;
 import cn.timelost.aws.vo.ResultVo;
 import cn.timelost.aws.vo.input.UserForm;
@@ -37,6 +38,8 @@ public class AwsUserServiceImpl extends ServiceImpl<AwsUserMapper, AwsUser> impl
     AwsUserMapper userMapper;
     @Autowired
     AwsRoleMapper roleMapper;
+    @Autowired
+    AwsUserLogService logService;
 
 
     @Override
@@ -69,6 +72,7 @@ public class AwsUserServiceImpl extends ServiceImpl<AwsUserMapper, AwsUser> impl
             return ResultVo.fail(ResultEnum.USER_NOT_EXIST);
         user.setStatus(0);
         userMapper.updateById(user);
+        logService.InsertUserLog("删除用户"+user.getUserCode(),1);
         return ResultVo.success();
 
     }
@@ -96,6 +100,8 @@ public class AwsUserServiceImpl extends ServiceImpl<AwsUserMapper, AwsUser> impl
         user.setPassword(password);
         if (userMapper.insert(user) == 0)
             return ResultVo.fail(ResultEnum.ADD_ERROR);
+        logService.InsertUserLog("新增用户"+code,1);
+
         return ResultVo.success();
 
     }
@@ -116,7 +122,9 @@ public class AwsUserServiceImpl extends ServiceImpl<AwsUserMapper, AwsUser> impl
 //            user.setSalt(salt);
 //        }
         awsUser.setUpdateTime(new Date());
-        userMapper.updateById(awsUser);
+        if ( userMapper.updateById(awsUser) == 0)
+            return ResultVo.fail(ResultEnum.ERROR);
+        logService.InsertUserLog("修改用户"+user.getUserCode(),1);
         return ResultVo.success();
     }
 
@@ -140,6 +148,7 @@ public class AwsUserServiceImpl extends ServiceImpl<AwsUserMapper, AwsUser> impl
         ue.setSalt(salt);
         ue.setId(user.getId());
         userMapper.updateById(ue);
+        logService.InsertUserLog("修改密码",1);
         return ResultVo.success();
     }
 
@@ -148,12 +157,12 @@ public class AwsUserServiceImpl extends ServiceImpl<AwsUserMapper, AwsUser> impl
         AwsUser user = userMapper.selectById(id);
         if (user == null)
             return ResultVo.fail(ResultEnum.USER_NOT_EXIST);
-        user.setStatus(0);
         String salt= JWTUtils.getSalt();
         String newPassword = new Md5Hash("123456", salt, 100).toHex();
         user.setPassword(newPassword);
         user.setSalt(salt);
         userMapper.updateById(user);
+        logService.InsertUserLog("重置用户密码"+user.getUserCode(),1);
         return ResultVo.success();
     }
 }

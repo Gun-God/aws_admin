@@ -6,6 +6,7 @@ import cn.timelost.aws.enums.ResultEnum;
 import cn.timelost.aws.exception.BaseException;
 import cn.timelost.aws.mapper.AwsSystemSettingMapper;
 import cn.timelost.aws.service.AwsSystemSettingService;
+import cn.timelost.aws.service.AwsUserLogService;
 import cn.timelost.aws.vo.ResultVo;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.BeanUtils;
@@ -30,6 +31,9 @@ public class AwsSystemSettingServiceImpl extends ServiceImpl<AwsSystemSettingMap
     @Autowired
     AwsSystemSettingMapper systemSettingMapper;
 
+    @Autowired
+    AwsUserLogService logService;
+
     @Override
     public ResultVo findAll() {
         List<AwsSystemSetting> settings=systemSettingMapper.selectList(null);
@@ -39,7 +43,11 @@ public class AwsSystemSettingServiceImpl extends ServiceImpl<AwsSystemSettingMap
     @Override
 //    @CacheEvict(allEntries = true)
     public void insert(AwsSystemSetting setting) {
-        systemSettingMapper.insert(setting);
+
+        if (systemSettingMapper.insert(setting)==0)
+            return;;
+        logService.InsertUserLog("创建系统设定参数",1);
+
     }
 
     @Override
@@ -50,7 +58,7 @@ public class AwsSystemSettingServiceImpl extends ServiceImpl<AwsSystemSettingMap
             throw new BaseException(ResultEnum.SETTING_NOT_EXIST);
         }
         systemSettingMapper.deleteById(id);
-
+        logService.InsertUserLog("删除系统设定参数:"+setting.getSetting(),1);
 
     }
 
@@ -63,6 +71,7 @@ public class AwsSystemSettingServiceImpl extends ServiceImpl<AwsSystemSettingMap
         }
         BeanUtils.copyProperties(form, setting);
         systemSettingMapper.updateById(setting);
+        logService.InsertUserLog("修改系统设定参数:"+setting.getSetting(),1);
 
 
 

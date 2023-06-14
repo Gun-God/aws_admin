@@ -7,11 +7,13 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 
 import javax.swing.*;
+import javax.websocket.Session;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 /**
@@ -22,24 +24,48 @@ import java.util.Date;
 public class NETDEV {
     private static final ImosSdkInterface ITF = ImosSdkInterface.instance;
     private final int m_lChannelID = 1;
-    private ImosSdkInterface.NETDEV_SOURCE_DATA_CALLBACK_PF videoDataCallBackFun;
-    private ImosSdkInterface.NETDEV_PIC_UPLOAD_PF multiPicDataCallBackFun = null;
+    private static ImosSdkInterface.NETDEV_SOURCE_DATA_CALLBACK_PF videoDataCallBackFun;
+    private static ImosSdkInterface.NETDEV_PIC_UPLOAD_PF multiPicDataCallBackFun = null;
     private String tfLocalIP;
-    public Integer deviceId = 0;
+    public Session session;
+    public  class videoDataCallBackFun implements ImosSdkInterface.NETDEV_SOURCE_DATA_CALLBACK_PF{
 
-    public NETDEV(Integer deviceId, String userName, String passWord, String deviceIP, String port) {
-        this.deviceId = deviceId;
+        @Override
+        public void callback(Pointer lpPlayHandle, String ucBuffer, int dwBufSize, int dwMediaDataType, Pointer lpUserParam) {
+            System.out.println(lpPlayHandle + "码流数据回调" + ucBuffer + ", 数据类型: " + dwMediaDataType + ", 数据长度:" + dwBufSize + "puser:" + lpUserParam);
+            long offset = 0;
+            // ByteBuffer buffer = ucBuffer.getPointer().getByteBuffer(offset, dwBufSize);
+            //byte[] bytes = ucBuffer.getPointer().getByteArray(offset, dwBufSize);
+            ByteBuffer buffer = ByteBuffer.wrap(ucBuffer.getBytes(StandardCharsets.UTF_8));
+            if (session !=null)
+                WebSocketServer.sendBufferToWeb(session, buffer);
+//                try {
+//                    Date date = new Date();
+//                    File file = new File(this.getClass().getResource("").getPath() + "/" + date.getTime() + ".mp4");
+//                    //根据lRealHandle从map中取出对应的流读取数据
+//                    FileOutputStream outputStream = new FileOutputStream(file);
+//                    outputStream.write(bytes);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+        }
+    }
+
+    public NETDEV(Session session, String userName, String passWord, String deviceIP, String port) {
+        this.session = session;
         //实况视频回调函数
         videoDataCallBackFun = new ImosSdkInterface.NETDEV_SOURCE_DATA_CALLBACK_PF() {
             @Override
-            public void callback(Pointer lpPlayHandle, ByteByReference ucBuffer, int dwBufSize, int dwMediaDataType, Pointer lpUserParam) {
+            public void callback(Pointer lpPlayHandle, String ucBuffer, int dwBufSize, int dwMediaDataType, Pointer lpUserParam) {
                 System.out.println(lpPlayHandle + "码流数据回调" + ucBuffer + ", 数据类型: " + dwMediaDataType + ", 数据长度:" + dwBufSize + "puser:" + lpUserParam);
                 long offset = 0;
                 // ByteBuffer buffer = ucBuffer.getPointer().getByteBuffer(offset, dwBufSize);
-                byte[] bytes = ucBuffer.getPointer().getByteArray(offset, dwBufSize);
-                ByteBuffer buffer = ByteBuffer.wrap(bytes);
-                if (deviceId != 0)
-                    WebSocketServer.sendMessageToOne(deviceId, buffer);
+//                byte[] bytes = ucBuffer.getPointer().getByteArray(offset, dwBufSize);
+//                ByteBuffer buffer = ByteBuffer.wrap(bytes);
+                ByteBuffer buffer = ByteBuffer.wrap(ucBuffer.getBytes(StandardCharsets.UTF_8));
+
+                if (session !=null)
+                    WebSocketServer.sendBufferToWeb(session, buffer);
 //                try {
 //                    Date date = new Date();
 //                    File file = new File(this.getClass().getResource("").getPath() + "/" + date.getTime() + ".mp4");
@@ -90,7 +116,7 @@ public class NETDEV {
         pstPreviewInfo.dwStreamType = NetDEVEnum.NETDEV_LIVE_STREAM_INDEX_MAIN;
         pstPreviewInfo.dwLinkMode = NetDEVEnum.NETDEV_TRANSPROTOCAL_RTPTCP;
 
-        NetDEVSdk.m_lpPlayHandle = ITF.NETDEV_RealPlay(NetDEVSdk.m_lpDevHandle, pstPreviewInfo, videoDataCallBackFun, Pointer.NULL);
+        NetDEVSdk.m_lpPlayHandle = ITF.NETDEV_RealPlay(NetDEVSdk.m_lpDevHandle, pstPreviewInfo, new videoDataCallBackFun(), Pointer.NULL);
         if (Pointer.NULL == NetDEVSdk.m_lpPlayHandle) {
             errMessage = "实况流启流失败.";
         } else {

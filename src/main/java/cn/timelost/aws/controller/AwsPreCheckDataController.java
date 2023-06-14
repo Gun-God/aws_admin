@@ -7,6 +7,7 @@ import cn.timelost.aws.service.AwsPreCheckDataService;
 import cn.timelost.aws.vo.ResultVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -43,6 +44,33 @@ public class AwsPreCheckDataController {
     public ResultVo getNowPreCheckData(){
         return preCheckDataService.getNowPreCheckData();
     }
+
+    @Scheduled(cron ="0 0 0 * * ? ")
+    public void PreCheckDataScheduledInto(){
+         preCheckDataService.transferPreData();
+    }
+
+
+    @RequestMapping(value = "/getCarCountCurrent", method = RequestMethod.GET)
+    public int getCarCountCurrent(){
+        return preCheckDataService.getCarCountToday();
+    }
+
+    @RequestMapping(value = "/getCarOverLoadCurrent", method = RequestMethod.GET)
+    public ResultVo getCarOverLoadCurrent(){
+        return preCheckDataService.getCarOverLoadToday();
+    }
+
+    @RequestMapping(value = "/getCarCountLast24H", method = RequestMethod.GET)
+    public ResultVo getCarCountLast24H(){
+        return preCheckDataService.getCarCountLast24H();
+    }
+
+    @RequestMapping(value = "/getCarTypeCountCurrent", method = RequestMethod.GET)
+    public ResultVo getCarTypeCountCurrent(){
+        return preCheckDataService.getCarTypeCountCurrent();
+    }
+
 
 
 

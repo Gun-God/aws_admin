@@ -1,6 +1,4 @@
 package cn.timelost.aws.config.common;
-
-
 import cn.timelost.aws.config.realm.UserRealm;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -9,14 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,17 +52,17 @@ public class HttpLogAspect {
         //System.out.println("接口方法名称：" + methodName + "()");
         //获取所有请求参数key和value
         String keyValue = getReqParameter(request);
-        System.out.println("url = " + request.getRequestURL().toString());
+       // System.out.println("url = " + request.getRequestURL().toString());
 
-        System.out.println("方法类型 = " + request.getMethod());
-        System.out.println("请求参数 key：value = " + keyValue);
+       // System.out.println("方法类型 = " + request.getMethod());
+        //System.out.println("请求参数 key：value = " + keyValue);
 //        String ip=request.getRemoteAddr();
 //        BigInteger ip6=ipv6ToInt(ip);
 //        System.err.println(ip6+"----"+ip6.longValue());
 //
 //        System.err.println("ip6==="+intToIpv6(ip6));
         String ip4=getIpAddr(request);
-        System.out.println("请求ip = " + ip4);
+       // System.out.println("请求ip = " + ip4);
 //        userLogs.setUserName(userName);
 //        userLogs.setIp(ip4);
 //        userLogs.setUrl(request.getRequestURL().toString());
@@ -80,17 +75,17 @@ public class HttpLogAspect {
 
     @After("log()")
     public void after() {
-        System.out.println("aop的after()方法");
+      //  System.out.println("aop的after()方法");
     }
 
     //controller请求结束返回时调用
     @AfterReturning(returning = "result", pointcut = "log()")
     public Object afterReturn(Object result) {
         if (result!=null){
-            System.out.println("返回值result =" + result.toString());
+           // System.out.println("返回值result =" + result.toString());
             long startTime = timeTreadLocal.get();
             double callTime = (System.currentTimeMillis() - startTime) / 1000.0;
-            System.out.println("调用接口共花费时间time = " + callTime + " s");
+          //  System.out.println("调用接口共花费时间time = " + callTime + " s");
 //            userLogs.setSpendTime(callTime);
 //            if (userLogs.getUserName()!=null)
 //                userLogsMapper.insert(userLogs);

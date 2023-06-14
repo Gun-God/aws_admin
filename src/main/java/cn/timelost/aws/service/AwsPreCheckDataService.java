@@ -18,6 +18,17 @@ public interface AwsPreCheckDataService extends IService<AwsPreCheckData> {
 
     ResultVo getNowPreCheckData();
 
+    void transferPreData();
+
+    int getCarCountToday();
+
+    ResultVo getCarOverLoadToday();
+
+    ResultVo getCarCountLast24H();
+
+    ResultVo getCarTypeCountCurrent();
+
+
 
 
 

@@ -8,9 +8,11 @@ import cn.timelost.aws.config.utils.JWTUtils;
 import cn.timelost.aws.entity.AwsCheckData;
 import cn.timelost.aws.entity.AwsSystemSetting;
 import cn.timelost.aws.entity.AwsUser;
+import cn.timelost.aws.entity.AwsUserLog;
 import cn.timelost.aws.entity.vo.AwsUserForm;
 import cn.timelost.aws.enums.ResultEnum;
 import cn.timelost.aws.mapper.AwsSystemSettingMapper;
+import cn.timelost.aws.service.AwsUserLogService;
 import cn.timelost.aws.service.AwsUserService;
 import cn.timelost.aws.vo.ResultVo;
 import cn.timelost.aws.vo.input.UserForm;
@@ -44,6 +46,9 @@ public class AwsUserController {
     @Autowired
     AwsUserService userService;
 
+    @Autowired
+    AwsUserLogService logService;
+
     @Resource
     AwsSystemSettingMapper systemSettingMapper;
 
@@ -52,7 +57,7 @@ public class AwsUserController {
         AwsSystemSetting setting = systemSettingMapper.selectOne(new QueryWrapper<AwsSystemSetting>().eq("setting", "EXPIRE_TIME"));
         try {
             /// System.err.println("hahahah" + setting.getAttributeName());
-            JWTUtils.EXPIRE_TIME = Long.parseLong(setting.getMsg()) * 60 * 1000;
+            JWTUtils.EXPIRE_TIME = Long.parseLong(setting.getMsg()) * 60 * 60 * 1000;
         } catch (Exception e) {
             System.err.println(e);
         }
@@ -70,23 +75,23 @@ public class AwsUserController {
         SecurityUtils.getSubject().login(new JWTToken(token));
         user.setToken(token);
         user.setOrgCode(us.getOrgCode());
+        user.setId(us.getId());
+        logService.InsertUserLog("用户" + us.getUserCode() + "登录", 0);
         return ResultVo.success(user);
     }
 
 
-
     @RequestMapping(value = "/getList", method = RequestMethod.GET)
     public PageInfo<AwsUser> getUserDataList(@RequestParam(value = "page") Integer page,
-                                                   @RequestParam(value = "size") Integer size){
+                                             @RequestParam(value = "size") Integer size) {
         return userService.findList(page, size);
     }
-
 
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     ////@RequiresRoles("admin")
     public ResultVo add(@RequestBody AwsUser us) {
-        return  userService.insert(us);
+        return userService.insert(us);
     }
 
 
@@ -97,20 +102,17 @@ public class AwsUserController {
     }
 
 
-
     @RequestMapping(value = "/updateById", method = RequestMethod.POST)
     //@RequiresRoles("admin")
-    public ResultVo update( @RequestBody AwsUserForm us) {
-        return  userService.updateUserById(us);
+    public ResultVo update(@RequestBody AwsUserForm us) {
+        return userService.updateUserById(us);
     }
 
-    @RequestMapping(value = "/removePwd", method = RequestMethod.POST)
+    @RequestMapping(value = "/removePwd", method = RequestMethod.GET)
     //@RequiresRoles("admin")
-    public ResultVo removePwd( @RequestBody AwsUserForm us) {
-        return  userService.updateUserById(us);
+    public ResultVo removePwd(@RequestParam(value = "id") Integer id) {
+        return userService.removePwd(id);
     }
-
-
 
 
 //    @RequestMapping(value = "image", method = RequestMethod.GET)

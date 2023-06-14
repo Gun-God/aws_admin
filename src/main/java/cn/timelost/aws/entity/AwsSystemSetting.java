@@ -37,5 +37,10 @@ public class AwsSystemSetting implements Serializable {
      */
     private String msg;
 
+    /**
+     * 设定参数
+     */
+    private String setting;
+
 
 }

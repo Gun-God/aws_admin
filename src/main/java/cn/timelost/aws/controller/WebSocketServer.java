@@ -2,7 +2,10 @@ package cn.timelost.aws.controller;
 
 import cn.timelost.aws.NETDemo.NETDEV;
 import cn.timelost.aws.config.realm.UserRealm;
+import cn.timelost.aws.entity.AwsScan;
+import cn.timelost.aws.mapper.AwsScanMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
@@ -12,7 +15,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,25 +32,25 @@ public class WebSocketServer {
 
     // 与某个客户端的连接会话，需要通过它来给客户端发送数据
     private Session session;
-
     // session集合,存放对应的session
-    private static ConcurrentHashMap<Integer, Session> sessionPool = new ConcurrentHashMap<>();
-
+//    private static ConcurrentHashMap<Integer, Session> sessionPool = new ConcurrentHashMap<>();
     // concurrent包的线程安全Set,用来存放每个客户端对应的WebSocket对象。
     private static CopyOnWriteArraySet<Session> webSocketSet = new CopyOnWriteArraySet<>();
     private static ConcurrentHashMap<Session, Timer> timerMap = new ConcurrentHashMap<>();
     private NETDEV dev;
 
-
+    @Autowired
+    AwsScanMapper scanMapper;
     /**
      * 建立WebSocket连接
      *
-     * @param session
-     * @param
+     * @param session  WebSocket对象
+     * @param deviceId 设备唯一标识
      */
     @OnOpen
-    public void onOpen(Session session, @PathParam("deviceId") Integer deviceId) {
-        String userName= UserRealm.USERNAME;
+    public void onOpen(Session session, @PathParam("deviceId") String deviceId) {
+        this.session = session;
+        String userName = UserRealm.USERNAME;
         log.info("WebSocket建立连接中,用户名：{}", userName);
         log.info("WebSocket建立连接中,连接设备ID：{}", deviceId);
 //        if (deviceId != null) {
@@ -64,23 +66,22 @@ public class WebSocketServer {
 //                log.error("重复登录异常,错误信息：" + e.getMessage(), e);
 //            }
 //        }
-
-
         // 建立连接
         webSocketSet.add(session);
-       // sessionPool.put(deviceId, session);
+        // sessionPool.put(deviceId, session);
         log.info("建立连接完成,当前在线人数为：{}", webSocketSet.size());
-      //  dev = new NETDEV(deviceId, "admin", "123456", "192.168.3.8", "80");
-        TaskTimer(deviceId,session);
-        System.err.println("webSocketSet数量"+webSocketSet.size());
+       // AwsScan scan = scanMapper.selectById(deviceId);
+        //dev = new NETDEV(session, scan.getUserName(), scan.getPassword(), scan.getVideoIp(), scan.getVideoPort());
+        TaskTimer(deviceId, session);
+        System.err.println("webSocketSet数量" + webSocketSet.size());
     }
 
-    public void TaskTimer(Integer deviceId,Session session) {
+    public void TaskTimer(String deviceId, Session session) {
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             public void run() {
                 SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-                sendMessageByUser(deviceId, "设备：" + deviceId + "返回回调数据" + sdf.format(new Date()),session);
+                sendMessageByUser(deviceId, "设备：" + deviceId + "返回回调数据" + sdf.format(new Date()), session);
             }
         }, 100, 3000);// 2000=开始延迟时间 500=间隔时间
         timerMap.put(session, timer);
@@ -102,17 +103,12 @@ public class WebSocketServer {
      */
     @OnClose
     public void onClose() {
-        //  sendMessageByUser(1, "断开连接");
-//        for (Map.Entry<Session, Timer> entry : timerMap.entrySet()
-//        ) {
-//
-//        }
         timerMap.get(session).cancel();
-       // sessionPool.clear();
+        // sessionPool.clear();
         webSocketSet.remove(session);
         log.info("连接断开,当前在线人数为：{}", webSocketSet.size());
         //关闭实况流
-      //  dev.closeRealPlay();
+        // dev.closeRealPlay();
 
     }
 
@@ -133,9 +129,8 @@ public class WebSocketServer {
      * @param deviceId 设备ID
      * @param message  发送的消息
      */
-    public static void sendMessageByUser(Integer deviceId, String message,Session session) {
-
-      //  Session session = sessionPool.get(deviceId);
+    public static void sendMessageByUser(String deviceId, String message, Session session) {
+        //  Session session = sessionPool.get(deviceId);
         try {
             if (webSocketSet.contains(session)) {
                 log.info("设备ID：" + deviceId + ",推送内容：" + message);
@@ -150,20 +145,10 @@ public class WebSocketServer {
     /**
      * 发送binary消息给指定客户端
      *
-     * @param deviceId 设备id
-     * @param buffer   码流数据
+     * @param session socketSesion
+     * @param buffer  码流数据
      */
-    public static void sendMessageToOne(Integer deviceId, ByteBuffer buffer) {
-        //登录句柄无效
-        if (deviceId == 0) {
-            //   log.error("loginHandler is invalid.please check.", this);
-            return;
-        }
-//        RealPlayInfo realPlayInfo = AutoRegisterEventModule.findRealPlayInfo(realPlayHandler);
-//        if(realPlayInfo == null){
-//            //连接已断开
-//        }
-        Session session = sessionPool.get(deviceId);
+    public static void sendBufferToWeb(Session session, ByteBuffer buffer) {
         if (session != null) {
             synchronized (session) {
                 try {
@@ -174,8 +159,6 @@ public class WebSocketServer {
                     e.printStackTrace();
                 }
             }
-        } else {
-            //log.error("session is null.please check.", );
         }
     }
 

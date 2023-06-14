@@ -99,6 +99,9 @@ public class AwsPreCheckData implements Serializable {
      * 车型
      */
     private Integer carTypeId;
-
+    /**
+     * 车牌颜色（1蓝色2黄色）
+     */
+    private Integer color;
 
 }

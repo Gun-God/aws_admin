@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -46,5 +45,14 @@ public class AwsCarNo implements Serializable {
      */
     private Date createTime;
 
+    /**
+     * 车牌颜色（1蓝色2黄色）
+     */
+    private Integer color;
+
+    /**
+     * 车道
+     */
+    private Integer lane;
 
 }

@@ -100,5 +100,10 @@ public class AwsPreCheckDataHistory implements Serializable {
      */
     private Integer carTypeId;
 
+    /**
+     * 车牌颜色（1蓝色2黄色）
+     */
+    private Integer color;
+
 
 }

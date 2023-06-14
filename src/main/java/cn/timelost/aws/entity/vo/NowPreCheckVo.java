@@ -20,5 +20,6 @@ public class NowPreCheckVo {
     public Double width=0.0;
     public Double height=0.0;
     public Integer type;
+    public Integer color;
 
 }

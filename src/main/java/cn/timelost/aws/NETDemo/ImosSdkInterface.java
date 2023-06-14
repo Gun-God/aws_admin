@@ -160,7 +160,7 @@ public interface ImosSdkInterface extends StdCallLibrary
          * returned quickly. Otherwise, stream processing in the player will be
          * affected.
          */
-        void callback(Pointer lpPlayHandle, ByteByReference ucBuffer, int dwBufSize, int dwMediaDataType, Pointer lpUserParam);
+        void callback(Pointer lpPlayHandle, String ucBuffer, int dwBufSize, int dwMediaDataType, Pointer lpUserParam);
     }
     
     /**

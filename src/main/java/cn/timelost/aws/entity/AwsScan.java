@@ -81,6 +81,21 @@ public class AwsScan implements Serializable {
      */
     private String deviceId;
 
+    /**
+     * 账号
+     */
+    private String userName;
+
+    /**
+     * 密码
+     */
+    private String password;
+
+    /**
+     * 视频端口
+     */
+    private String videoPort;
+
     @TableField(exist = false)
     private String orgName;
 
