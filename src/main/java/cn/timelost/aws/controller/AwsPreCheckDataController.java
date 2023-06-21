@@ -45,7 +45,7 @@ public class AwsPreCheckDataController {
         return preCheckDataService.getNowPreCheckData();
     }
 
-    @Scheduled(cron ="0 0 0 * * ? ")
+    @Scheduled(cron ="0 1 0 * * ? ")
     public void PreCheckDataScheduledInto(){
          preCheckDataService.transferPreData();
     }

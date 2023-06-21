@@ -1205,7 +1205,7 @@ public class DateUtil {
         Date[] de = new Date[2];
         Date date = new Date();
         de[1] = date;
-        date = DateUtil.beforeHourToNowDate(date, 1);
+     //   date = DateUtil.beforeHourToNowDate(date, 1);
         String d = DateUtil.formatDate(date, "yyyy-MM-dd HH") + ":00:00";
         date = DateUtil.parseDate(d, "yyyy-MM-dd HH:mm:ss");
         de[0] = date;

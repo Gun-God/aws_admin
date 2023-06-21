@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import jdk.nashorn.internal.objects.annotations.Setter;
+import lombok.Data;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,8 @@ import java.util.List;
  * </p>
  *
  * @author HuangYW
+ * @version 1.0
+ * @description 预检信息记录表 服务实现类
  * @since 2023-05-15
  */
 @Service
@@ -118,7 +121,7 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
     @Override
     public int getCarCountToday() {
         QueryWrapper<AwsPreCheckData> qw = new QueryWrapper<>();
-        String d=DateUtil.formatDate(new Date(),"yyyy-MM-dd");
+        String d = DateUtil.formatDate(new Date(), "yyyy-MM-dd");
         qw.eq("to_char(create_time,'yyyy-MM-dd')", d);
         int count;
         count = awsPreCheckDataMapper.selectCount(qw);
@@ -129,12 +132,12 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
     public ResultVo getCarOverLoadToday() {
         int total = getCarCountToday();
         int limitC = 0, limitB = 0;
-        double limitCPer = 0, limitBPer=0;
-        String d=DateUtil.formatDate(new Date(),"yyyy-MM-dd");
+        double limitCPer = 0, limitBPer = 0;
+        String d = DateUtil.formatDate(new Date(), "yyyy-MM-dd");
         if (total != 0) {
             QueryWrapper<AwsPreCheckData> qw = new QueryWrapper<>();
             qw.eq("to_char(create_time,'yyyy-MM-dd')", d);
-           // qw.lambda().eq(AwsPreCheckData::getCreateTime, new Date());
+            // qw.lambda().eq(AwsPreCheckData::getCreateTime, new Date());
             qw.apply("pre_amt > limit_amt");
             List<AwsPreCheckData> list = awsPreCheckDataMapper.selectList(qw);
 
@@ -146,8 +149,8 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
                     limitC++;
             }
             limitB = awsPreCheckDataMapper.selectCount(new QueryWrapper<AwsPreCheckData>().gt("pre_amt", 100).eq("to_char(create_time,'yyyy-MM-dd')", d));
-            BigDecimal b1 = BigDecimal.valueOf(((double) limitC / total)*100);
-            BigDecimal b2 = BigDecimal.valueOf(((double) limitB / total)*100);
+            BigDecimal b1 = BigDecimal.valueOf(((double) limitC / total) * 100);
+            BigDecimal b2 = BigDecimal.valueOf(((double) limitB / total) * 100);
             limitCPer = b1.setScale(2, RoundingMode.HALF_UP).doubleValue();
             limitBPer = b2.setScale(2, RoundingMode.HALF_UP).doubleValue();
         }
@@ -184,10 +187,49 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
         return ResultVo.success(lists);
     }
 
-    @Override
-    public ResultVo getCarTypeCountCurrent() {
-        return null;
+    @Data
+    private class CarTypeVo {
+        private Integer value;
+        private String name;
     }
 
-
+    @Override
+    public ResultVo getCarTypeCountCurrent() {
+        String d = DateUtil.formatDate(new Date(), "yyyy-MM-dd");
+        List<CarTypeVo> carTypeVos = new ArrayList<>();
+//        QueryWrapper<AwsCarType> qw = new QueryWrapper<>();
+//        qw.lambda().eq(AwsCarType::getState, 1);
+//        // qw.lambda().lt(AwsCarType::getAxisNum, 6);
+//        qw.orderByAsc("axis_num");
+//        List<AwsCarType> list = carTypeMapper.selectList(qw);
+        int axisCount = 0;
+        int axisCount1 = 0;
+        String name = "6轴及以上";
+        String  name1= "其他";
+        for (int i = 0; i <= 8; i++) {
+            QueryWrapper<AwsPreCheckData> qw1 = new QueryWrapper<>();
+            qw1.lambda().eq(AwsPreCheckData::getAxisNum, i);
+            qw1.eq("to_char(create_time,'yyyy-MM-dd')", d);
+            int count = awsPreCheckDataMapper.selectCount(qw1);
+            if (i >= 2 && i < 6) {
+                CarTypeVo vo = new CarTypeVo();
+                vo.setName(i + "轴车");
+                vo.setValue(count);
+                carTypeVos.add(vo);
+            } else if (i>=6){
+                axisCount += count;
+            }else {
+                axisCount1+=count;
+            }
+        }
+        CarTypeVo vo = new CarTypeVo();
+        vo.setName(name);
+        vo.setValue(axisCount);
+        carTypeVos.add(vo);
+        CarTypeVo vo1 = new CarTypeVo();
+        vo1.setName(name1);
+        vo1.setValue(axisCount1);
+        carTypeVos.add(vo1);
+        return ResultVo.success(carTypeVos);
+    }
 }
