@@ -50,18 +50,15 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
     @Autowired
     AwsSystemLogMapper logMapper;
 
-
     @Override
     public ResultVo getNowPreCheckData() {
         List<NowPreCheckVo> nowPreCheckVoList = new ArrayList<>();
-
         for (int i = 1; i <= 2; i++) {
             QueryWrapper<AwsPreCheckData> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("lane", i);
             queryWrapper.orderByDesc("create_time");
             queryWrapper.last("limit 1");
             AwsPreCheckData preCheckData = awsPreCheckDataMapper.selectOne(queryWrapper);
-
             if (preCheckData != null) {
                 NowPreCheckVo vo1 = new NowPreCheckVo();
                 vo1.setAxisNum(preCheckData.getAxisNum());
@@ -76,14 +73,11 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
                     vo1.setLength(car.getLength());
                     vo1.setWidth(car.getWidth());
                 }
-
                 vo1.setType(i);
                 vo1.setColor(preCheckData.getColor());
                 nowPreCheckVoList.add(vo1);
             }
         }
-
-
         return ResultVo.success(nowPreCheckVoList);
     }
 
@@ -188,7 +182,7 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
     }
 
     @Data
-    private class CarTypeVo {
+    private static class CarTypeVo {
         private Integer value;
         private String name;
     }
@@ -205,7 +199,7 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
         int axisCount = 0;
         int axisCount1 = 0;
         String name = "6轴及以上";
-        String  name1= "其他";
+        String name1 = "其他";
         for (int i = 0; i <= 8; i++) {
             QueryWrapper<AwsPreCheckData> qw1 = new QueryWrapper<>();
             qw1.lambda().eq(AwsPreCheckData::getAxisNum, i);
@@ -216,10 +210,10 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
                 vo.setName(i + "轴车");
                 vo.setValue(count);
                 carTypeVos.add(vo);
-            } else if (i>=6){
+            } else if (i >= 6) {
                 axisCount += count;
-            }else {
-                axisCount1+=count;
+            } else {
+                axisCount1 += count;
             }
         }
         CarTypeVo vo = new CarTypeVo();

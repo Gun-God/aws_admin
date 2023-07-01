@@ -26,7 +26,7 @@ public interface AwsScanMapper extends BaseMapper<AwsScan> {
             "\taws_scan u LEFT JOIN\n" +
             "\taws_nsp_org o on \tu.org_code = o.code \n" +
             "WHERE\n" +
-            "\t u.state !=0" +
+            "\t u.state !=0 order by id desc" +
             "</script>")
     List<AwsScan> selectAll();
 

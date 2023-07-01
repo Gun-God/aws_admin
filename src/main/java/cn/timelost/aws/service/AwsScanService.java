@@ -24,5 +24,8 @@ public interface AwsScanService extends IService<AwsScan> {
 
     ResultVo updateScanById(AwsScan scan);
 
+    ResultVo selectAllCamera();
+
+
 
 }

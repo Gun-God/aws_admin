@@ -124,10 +124,24 @@
         </dependency>
 
         <dependency>
-            <groupId>net.java.dev.jna</groupId>
+            <!--groupId 随便填写 -->
+            <groupId>com.sun</groupId>
+            <!--artifactId 随便填写-->
             <artifactId>jna</artifactId>
-            <version>4.5.0</version>
+            <!--version 随便填写-->
+            <version>4.5.1</version>
+            <!-- scope=system表示此依赖是来自外部jar，而不是maven仓库。当scope设置为system时，systemPath属性才会生效，systemPath为一个物理文件路径，来指定依赖的jar其物理磁盘的位置。 -->
+            <scope>system</scope>
+            <!-- ${project.basedir}代表根目录 -->
+            <systemPath>${project.basedir}/libs/jna.jar</systemPath>
         </dependency>
+
+
+<!--        <dependency>-->
+<!--            <groupId>net.java.dev.jna</groupId>-->
+<!--            <artifactId>jna</artifactId>-->
+<!--            <version>4.5.0</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -143,6 +157,8 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <!-- 代表maven打包时会将外部引入的jar包（比如在根目录下或resource文件下新加外部jar包）打包到项目jar，在服务器上项目才能运行 -->
+                    <includeSystemScope>true</includeSystemScope>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

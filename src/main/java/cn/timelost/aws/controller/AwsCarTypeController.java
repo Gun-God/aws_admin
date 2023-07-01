@@ -33,7 +33,7 @@ public class AwsCarTypeController {
 
     @RequestMapping(value = "/getList", method = RequestMethod.GET)
     public ResultVo getAwsCarTypeList(){
-        List<AwsCarType> carTypeList=carTypeMapper.selectList(new QueryWrapper<AwsCarType>().eq("state",1));
+        List<AwsCarType> carTypeList=carTypeMapper.selectList(new QueryWrapper<AwsCarType>().eq("state",1).orderByAsc("axis_num"));
         return ResultVo.success(carTypeList);
     }
 

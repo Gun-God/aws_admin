@@ -1,8 +1,7 @@
 package cn.timelost.aws.controller;
 
-import cn.timelost.aws.NETDemo.NETDEV;
+import cn.timelost.aws.NetDemo.NetDevMain;
 import cn.timelost.aws.config.realm.UserRealm;
-import cn.timelost.aws.entity.AwsScan;
 import cn.timelost.aws.mapper.AwsScanMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,7 @@ public class WebSocketServer {
     // concurrent包的线程安全Set,用来存放每个客户端对应的WebSocket对象。
     private static CopyOnWriteArraySet<Session> webSocketSet = new CopyOnWriteArraySet<>();
     private static ConcurrentHashMap<Session, Timer> timerMap = new ConcurrentHashMap<>();
-    private NETDEV dev;
+    private NetDevMain dev;
 
     @Autowired
     AwsScanMapper scanMapper;
@@ -71,7 +70,7 @@ public class WebSocketServer {
         // sessionPool.put(deviceId, session);
         log.info("建立连接完成,当前在线人数为：{}", webSocketSet.size());
        // AwsScan scan = scanMapper.selectById(deviceId);
-        //dev = new NETDEV(session, scan.getUserName(), scan.getPassword(), scan.getVideoIp(), scan.getVideoPort());
+        //dev = new NetDevMain(session, scan.getUserName(), scan.getPassword(), scan.getVideoIp(), scan.getVideoPort());
         TaskTimer(deviceId, session);
         System.err.println("webSocketSet数量" + webSocketSet.size());
     }

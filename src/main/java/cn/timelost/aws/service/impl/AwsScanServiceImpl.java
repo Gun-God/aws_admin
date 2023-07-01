@@ -13,6 +13,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -55,6 +56,8 @@ public class AwsScanServiceImpl extends ServiceImpl<AwsScanMapper, AwsScan> impl
         if (c != 0)
             return ResultVo.fail("设备编号已存在");
         scan.setId(null);
+        scan.setState(1);
+        scan.setCreateTime(new Date());
         if (scanMapper.insert(scan) == 0)
             return ResultVo.fail(ResultEnum.ERROR);
         logService.InsertUserLog("添加设备",1);
@@ -69,5 +72,13 @@ public class AwsScanServiceImpl extends ServiceImpl<AwsScanMapper, AwsScan> impl
             return ResultVo.fail(ResultEnum.ERROR);
         logService.InsertUserLog("修改设备:"+scan.getCode(),1);
         return ResultVo.success();
+    }
+
+    @Override
+    public ResultVo selectAllCamera() {
+        QueryWrapper<AwsScan> qw=new QueryWrapper<>();
+        qw.lambda().eq(AwsScan::getType,3).ne(AwsScan::getState,0);
+        List<AwsScan> list=scanMapper.selectList(qw);
+        return ResultVo.success(list);
     }
 }

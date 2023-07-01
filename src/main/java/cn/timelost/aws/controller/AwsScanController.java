@@ -52,5 +52,9 @@ public class AwsScanController {
         return scanService.updateScanById(scan);
     }
 
-
+    @RequestMapping(value = "/selectAllCamera", method = RequestMethod.GET)
+    ////@RequiresRoles("admin")
+    public ResultVo selectAllCamera() {
+        return scanService.selectAllCamera();
+    }
 }

@@ -52,9 +52,10 @@ public class AwsScan implements Serializable {
     private String videoIp;
 
     /**
-     * 设备类型
+     * 设备类型（1精检称台，2预检称台，3摄像头）
      */
-    private String type;
+    private Integer type;
+
 
     /**
      * 状态(1正常2维修)
@@ -99,5 +100,14 @@ public class AwsScan implements Serializable {
     @TableField(exist = false)
     private String orgName;
 
+    /**
+     * 关联设备编号
+     */
+    private String reCode;
+
+    /**
+     * 摄像头厂家（1宇视，2海康）
+     */
+    private Integer factory;
 
 }
