@@ -1,6 +1,5 @@
 package cn.timelost.aws.service.impl;
 
-import cn.timelost.aws.entity.AwsPreCheckData;
 import cn.timelost.aws.entity.AwsPreCheckDataHistory;
 import cn.timelost.aws.mapper.AwsPreCheckDataHistoryMapper;
 import cn.timelost.aws.service.AwsPreCheckDataHistoryService;
@@ -13,9 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * <p>

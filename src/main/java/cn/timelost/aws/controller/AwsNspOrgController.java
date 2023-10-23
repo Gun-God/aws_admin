@@ -2,9 +2,6 @@ package cn.timelost.aws.controller;
 
 
 import cn.timelost.aws.entity.AwsNspOrg;
-import cn.timelost.aws.entity.AwsPreCheckData;
-import cn.timelost.aws.entity.AwsUser;
-import cn.timelost.aws.entity.vo.AwsUserForm;
 import cn.timelost.aws.mapper.AwsNspOrgMapper;
 import cn.timelost.aws.service.AwsNspOrgService;
 import cn.timelost.aws.vo.ResultVo;
@@ -12,8 +9,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * <p>
@@ -67,6 +62,12 @@ public class AwsNspOrgController {
     //@RequiresRoles("admin")
     public ResultVo update( @RequestBody AwsNspOrg org) {
         return orgService.updateUserById(org);
+    }
+
+    @RequestMapping(value = "/selectAllOrg", method = RequestMethod.GET)
+    ////@RequiresRoles("admin")
+    public ResultVo selectAllOrg() {
+        return orgService.selectAllOrg();
     }
 
 

@@ -3,10 +3,9 @@ package cn.timelost.aws.config.realm;
 import cn.timelost.aws.config.JWTToken;
 import cn.timelost.aws.config.utils.JWTUtils;
 import cn.timelost.aws.entity.AwsRole;
-import cn.timelost.aws.entity.AwsSystemSetting;
 import cn.timelost.aws.entity.AwsUser;
 import cn.timelost.aws.mapper.AwsRoleMapper;
-import cn.timelost.aws.mapper.AwsSystemSettingMapper;
+import cn.timelost.aws.mapper.AwsUserMapper;
 import cn.timelost.aws.service.AwsUserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +17,7 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
 
@@ -29,12 +29,14 @@ import javax.annotation.Resource;
 public class UserRealm extends AuthorizingRealm {
 
     public static String USERNAME;
+    public static String ORGCODE=null;
 
     @Resource
     AwsUserService userService;
     @Resource
     AwsRoleMapper roleMapper;
-
+    @Autowired
+    AwsUserMapper userMapper;
 
 
 
@@ -67,7 +69,9 @@ public class UserRealm extends AuthorizingRealm {
             throw new AuthenticationException("token异常");
         }
         AwsUser userBean = userService.findByUsername(username);
-
+        if (ORGCODE==null)
+            ORGCODE=userMapper.selectOne(new QueryWrapper<AwsUser>().lambda().eq(AwsUser::getUsername,username)).getOrgCode();
+        System.err.println("编号"+ORGCODE);
         if (!JWTUtils.verify(token, username, userBean.getPassword())) {
             throw new AuthenticationException("账号或密码错误");
         }

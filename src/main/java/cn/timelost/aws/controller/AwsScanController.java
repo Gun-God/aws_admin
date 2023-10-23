@@ -1,7 +1,6 @@
 package cn.timelost.aws.controller;
 
 
-import cn.timelost.aws.entity.AwsNspOrg;
 import cn.timelost.aws.entity.AwsScan;
 import cn.timelost.aws.service.AwsScanService;
 import cn.timelost.aws.vo.ResultVo;

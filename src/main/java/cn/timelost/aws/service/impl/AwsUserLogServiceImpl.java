@@ -1,7 +1,6 @@
 package cn.timelost.aws.service.impl;
 
 import cn.timelost.aws.config.realm.UserRealm;
-import cn.timelost.aws.entity.AwsPreCheckDataHistory;
 import cn.timelost.aws.entity.AwsUser;
 import cn.timelost.aws.entity.AwsUserLog;
 import cn.timelost.aws.mapper.AwsUserLogMapper;

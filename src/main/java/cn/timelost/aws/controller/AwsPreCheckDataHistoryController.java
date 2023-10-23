@@ -1,12 +1,8 @@
 package cn.timelost.aws.controller;
 
 
-import cn.timelost.aws.entity.AwsPreCheckData;
 import cn.timelost.aws.entity.AwsPreCheckDataHistory;
 import cn.timelost.aws.service.AwsPreCheckDataHistoryService;
-import cn.timelost.aws.service.AwsPreCheckDataService;
-import cn.timelost.aws.vo.ResultVo;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,9 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * <p>

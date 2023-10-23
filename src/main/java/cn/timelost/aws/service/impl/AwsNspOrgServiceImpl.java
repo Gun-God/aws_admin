@@ -6,11 +6,9 @@ import cn.timelost.aws.entity.AwsUser;
 import cn.timelost.aws.entity.AwsUserLog;
 import cn.timelost.aws.enums.ResultEnum;
 import cn.timelost.aws.mapper.AwsNspOrgMapper;
-import cn.timelost.aws.mapper.AwsUserLogMapper;
 import cn.timelost.aws.mapper.AwsUserMapper;
 import cn.timelost.aws.service.AwsNspOrgService;
 import cn.timelost.aws.service.AwsUserLogService;
-import cn.timelost.aws.service.AwsUserService;
 import cn.timelost.aws.vo.ResultVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -19,7 +17,6 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -58,10 +55,10 @@ public class AwsNspOrgServiceImpl extends ServiceImpl<AwsNspOrgMapper, AwsNspOrg
             return ResultVo.fail(ResultEnum.ORG_NOT_EXIST);
         org.setState(0);
 
-        if (orgMapper.updateById(org)==0)
+        if (orgMapper.updateById(org) == 0)
             return ResultVo.fail(ResultEnum.ERROR);
-        AwsUserLog log=new AwsUserLog();
-        logService.InsertUserLog("删除检测站,编号:"+org.getCode(),1);
+        AwsUserLog log = new AwsUserLog();
+        logService.InsertUserLog("删除检测站,编号:" + org.getCode(), 1);
         return ResultVo.success();
     }
 
@@ -75,16 +72,24 @@ public class AwsNspOrgServiceImpl extends ServiceImpl<AwsNspOrgMapper, AwsNspOrg
         org.setState(1);
         if (orgMapper.insert(org) == 0)
             return ResultVo.fail(ResultEnum.ERROR);
-       // org.setId(size+1);
-        logService.InsertUserLog("新增检测站"+org.getCode(),1);
+        // org.setId(size+1);
+        logService.InsertUserLog("新增检测站" + org.getCode(), 1);
         return ResultVo.success();
     }
 
     @Override
     public ResultVo updateUserById(AwsNspOrg org) {
-        if (orgMapper.updateById(org)==0)
+        if (orgMapper.updateById(org) == 0)
             return ResultVo.fail(ResultEnum.ERROR);
-        logService.InsertUserLog("修改检测站,编号:"+org.getCode(),1);
+        logService.InsertUserLog("修改检测站,编号:" + org.getCode(), 1);
         return ResultVo.success();
+    }
+
+    @Override
+    public ResultVo selectAllOrg() {
+        QueryWrapper<AwsNspOrg> qw = new QueryWrapper<>();
+        qw.lambda().eq(AwsNspOrg::getState, 1);
+        List<AwsNspOrg> list = orgMapper.selectList(qw);
+        return ResultVo.success(list);
     }
 }

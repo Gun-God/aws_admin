@@ -89,10 +89,10 @@ public class ClientDemo {
                 try {
                     if (osSelect.isWindows())
                         //win系统加载库路径
-                        strPlayPath = System.getProperty("user.dir") + "\\libs\\hiv\\lib\\PlayCtrl.dll";
+                        strPlayPath = System.getProperty("user.dir") + "\\libs\\hik\\windows\\PlayCtrl.dll";
                     else if (osSelect.isLinux())
                         //Linux系统加载库路径
-                        strPlayPath = System.getProperty("user.dir") + "libs/hiv/lib/libPlayCtrl.so";
+                        strPlayPath = System.getProperty("user.dir") + "libs/hik/linux/libPlayCtrl.so";
                     playControl = (PlayCtrl) Native.loadLibrary(strPlayPath, PlayCtrl.class);
 
                 } catch (Exception ex) {
@@ -116,11 +116,11 @@ public class ClientDemo {
                 try {
                     if (osSelect.isWindows())
                         //win系统加载库路径
-                        strDllPath = System.getProperty("user.dir") + "\\libs\\hiv\\lib\\HCNetSDK.dll";
+                        strDllPath = System.getProperty("user.dir") + "\\libs\\hik\\windows\\HCNetSDK.dll";
 
                     else if (osSelect.isLinux())
                         //Linux系统加载库路径
-                        strDllPath = System.getProperty("user.dir") + "libs/hiv/lib/libhcnetsdk.so";
+                        strDllPath = System.getProperty("user.dir") + "libs/hik/linux/libhcnetsdk.so";
                     hCNetSDK = (HCNetSDK) Native.loadLibrary(strDllPath, HCNetSDK.class);
                 } catch (Exception ex) {
                     System.out.println("loadLibrary: " + strDllPath + " Error: " + ex.getMessage());
@@ -133,16 +133,41 @@ public class ClientDemo {
 
 
     static void initDemo() {
+        //linux系统建议调用以下接口加载组件库
+        if (osSelect.isLinux()) {
+            HCNetSDK.BYTE_ARRAY ptrByteArray1 = new HCNetSDK.BYTE_ARRAY(256);
+            HCNetSDK.BYTE_ARRAY ptrByteArray2 = new HCNetSDK.BYTE_ARRAY(256);
+            //这里是库的绝对路径，请根据实际情况修改，注意改路径必须有访问权限
+            String strPath1 = System.getProperty("user.dir") + "/libs/hik/linux/libcrypto.so.1.1";
+            String strPath2 = System.getProperty("user.dir") + "/libs/hik/linux/libssl.so.1.1";
+
+            System.arraycopy(strPath1.getBytes(), 0, ptrByteArray1.byValue, 0, strPath1.length());
+            ptrByteArray1.write();
+            hCNetSDK.NET_DVR_SetSDKInitCfg(3, ptrByteArray1.getPointer());
+
+            System.arraycopy(strPath2.getBytes(), 0, ptrByteArray2.byValue, 0, strPath2.length());
+            ptrByteArray2.write();
+            hCNetSDK.NET_DVR_SetSDKInitCfg(4, ptrByteArray2.getPointer());
+
+            String strPathCom = System.getProperty("user.dir") + "/libs/hik/linux/";
+            HCNetSDK.NET_DVR_LOCAL_SDK_PATH struComPath = new HCNetSDK.NET_DVR_LOCAL_SDK_PATH();
+            System.arraycopy(strPathCom.getBytes(), 0, struComPath.sPath, 0, strPathCom.length());
+            struComPath.write();
+            hCNetSDK.NET_DVR_SetSDKInitCfg(2, struComPath.getPointer());
+        }
+
+
         if (hCNetSDK == null && playControl == null) {
             if (!CreateSDKInstance()) {
                 System.out.println("Load SDK fail");
                 return;
             }
-            if (!CreatePlayInstance()) {
-                System.out.println("Load PlayCtrl fail");
-                return;
-            }
+//            if (!CreatePlayInstance()) {
+//                System.out.println("Load PlayCtrl fail");
+//                return;
+//            }
         }
+        assert hCNetSDK != null;
         boolean initSuc = hCNetSDK.NET_DVR_Init();
         if (!initSuc) {
             JOptionPane.showMessageDialog(null, "初始化失败");
@@ -216,7 +241,7 @@ public class ClientDemo {
 //       m_strClientInfo.lChannel = new NativeLong(iChannelNum);
         HCNetSDK.NET_DVR_PREVIEWINFO strClientInfo = new HCNetSDK.NET_DVR_PREVIEWINFO();
         strClientInfo.read();
-//            strClientInfo.hPlayWnd = null;  //窗口句柄，从回调取流不显示一般设置为空
+        strClientInfo.hPlayWnd = 0;  //窗口句柄，从回调取流不显示一般设置为空
         strClientInfo.lChannel = iChannelNum;  //通道号
         strClientInfo.dwStreamType = 0; //0-主码流，1-子码流，2-三码流，3-虚拟码流，以此类推
         strClientInfo.dwLinkMode = 0; //连接方式：0- TCP方式，1- UDP方式，2- 多播方式，3- RTP方式，4- RTP/RTSP，5- RTP/HTTP，6- HRUDP（可靠传输） ，7- RTSP/HTTPS，8- NPQ

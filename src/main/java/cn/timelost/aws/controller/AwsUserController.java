@@ -1,14 +1,10 @@
 package cn.timelost.aws.controller;
 
 
-import cn.hutool.captcha.CaptchaUtil;
-import cn.hutool.captcha.LineCaptcha;
 import cn.timelost.aws.config.JWTToken;
 import cn.timelost.aws.config.utils.JWTUtils;
-import cn.timelost.aws.entity.AwsCheckData;
 import cn.timelost.aws.entity.AwsSystemSetting;
 import cn.timelost.aws.entity.AwsUser;
-import cn.timelost.aws.entity.AwsUserLog;
 import cn.timelost.aws.entity.vo.AwsUserForm;
 import cn.timelost.aws.enums.ResultEnum;
 import cn.timelost.aws.mapper.AwsSystemSettingMapper;
@@ -20,16 +16,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.hash.Md5Hash;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.io.IOException;
-import java.util.List;
 
 /**
  * <p>

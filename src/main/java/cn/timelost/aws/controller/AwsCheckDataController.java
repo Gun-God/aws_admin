@@ -2,7 +2,6 @@ package cn.timelost.aws.controller;
 
 
 import cn.timelost.aws.entity.AwsCheckData;
-import cn.timelost.aws.entity.AwsPreCheckDataHistory;
 import cn.timelost.aws.service.AwsCheckDataService;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;

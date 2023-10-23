@@ -24,6 +24,7 @@ public class NetDevMain {
     public class videoDataCallBackFun implements NetDEVSDKLib.NETDEV_SOURCE_DATA_CALLBACK_PF {
         @Override
         public void invoke(Pointer lpPlayHandle, Pointer pucBuffer, int dwBufSize, int dwMediaDataType, Pointer lpUserParam) {
+            //如果没打印这条信息，说明没进回调函数，则需要换另一种方式获取视频流
             System.out.println(lpPlayHandle + "码流数据回调" + pucBuffer + ", 数据类型: " + dwMediaDataType + ", 数据长度:" + dwBufSize + "puser:" + lpUserParam);
             long offset = 0;
             byte[] bytes = pucBuffer.getByteArray(offset, dwBufSize);
@@ -81,7 +82,6 @@ public class NetDevMain {
 
         stPreviewInfo.dwChannelID = m_lChannelID;
         stPreviewInfo.dwStreamType = NetDEVEnum.NETDEV_LIVE_STREAM_INDEX_MAIN;
-        ;
         stPreviewInfo.dwLinkMode = 1;
         stPreviewInfo.hPlayWnd = null;
         stPreviewInfo.dwFluency = 0;

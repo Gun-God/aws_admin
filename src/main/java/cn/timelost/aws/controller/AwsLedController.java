@@ -1,7 +1,6 @@
 package cn.timelost.aws.controller;
 
 
-import cn.timelost.aws.entity.AwsCheckData;
 import cn.timelost.aws.entity.AwsLed;
 import cn.timelost.aws.service.AwsLedService;
 import com.github.pagehelper.PageInfo;

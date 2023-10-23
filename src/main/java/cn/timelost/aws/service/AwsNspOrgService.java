@@ -26,4 +26,6 @@ public interface AwsNspOrgService extends IService<AwsNspOrg> {
 
     ResultVo updateUserById(AwsNspOrg org);
 
+    ResultVo selectAllOrg();
+
 }

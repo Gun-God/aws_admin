@@ -1,7 +1,8 @@
 package cn.timelost.aws.HivDemo;
 
 import com.sun.jna.*;
-
+import com.sun.jna.examples.win32.W32API;
+import com.sun.jna.examples.win32.W32API.HWND;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.ShortByReference;
@@ -529,8 +530,6 @@ public interface HCNetSDK extends Library {
     public static final int NET_DVR_SET_PTZPOS = 292;    //云台设置PTZ位置
     public static final int NET_DVR_GET_PTZPOS = 293;        //云台获取PTZ位置
     public static final int NET_DVR_GET_PTZSCOPE = 294;//云台获取PTZ范围
-    public static final int NET_DVR_GET_PTZLOCKCFG=3287;//获取云台锁定信息
-    public static final int  NET_DVR_SET_PTZLOCKCFG=3288;//设置云台锁定信息
 
     public static final int NET_DVR_COMPLETE_RESTORE_CTRL = 3420;    //设置完全恢复出厂值
     /***************************
@@ -2248,17 +2247,11 @@ public interface HCNetSDK extends Library {
 
     }
 
-
-    /* IP通道匹配参数 */
     public static class NET_DVR_IPCHANINFO extends Structure {/* IP通道匹配参数 */
-
-        public byte byEnable;                    /* 该通道是否在线 */
-        public byte byIPID;                    //IP设备ID低8位，当设备ID为0时表示通道不可用
+        public byte byEnable;                    /* 该通道是否启用 */
+        public byte byIPID;                    /* IP设备ID 取值1- MAX_IP_DEVICE */
         public byte byChannel;                    /* 通道号 */
-        public byte byIPIDHigh;                // IP设备ID的高8位
-        public byte byTransProtocol;            //传输协议类型0-TCP/auto(具体有设备决定)，1-UDP 2-多播 3-仅TCP 4-auto
-        public byte byGetStream;         /* 是否对该通道取流，0-是，1-否*/
-        public byte[] byres=new byte[30];                    /* 保留 */
+        public byte[] byres = new byte[33];                    /* 保留 */
 
 
     }
@@ -3961,7 +3954,7 @@ DVR实现巡航数据结构
     public static class NET_DVR_CLIENTINFO extends Structure {
         public int lChannel;
         public int lLinkMode;
-       // public HWND hPlayWnd;
+        public HWND hPlayWnd;
         public String sMultiCastIP;
     }
 
@@ -3970,7 +3963,7 @@ DVR实现巡航数据结构
         public int lChannel;//通道号
         public int dwStreamType;    // 码流类型，0-主码流，1-子码流，2-码流3，3-码流4, 4-码流5,5-码流6,7-码流7,8-码流8,9-码流9,10-码流10
         public int dwLinkMode;// 0：TCP方式,1：UDP方式,2：多播方式,3 - RTP方式，4-RTP/RTSP,5-RSTP/HTTP ,6- HRUDP（可靠传输） ,7-RTSP/HTTPS
-       // public HWND hPlayWnd;//播放窗口的句柄,为NULL表示不播放图象
+        public int hPlayWnd;//播放窗口的句柄,为NULL表示不播放图象
         public int bBlocked;  //0-非阻塞取流, 1-阻塞取流, 如果阻塞SDK内部connect失败将会有5s的超时才能够返回,不适合于轮询取流操作.
         public int bPassbackRecord; //0-不启用录像回传,1启用录像回传
         public byte byPreviewMode;//预览模式，0-正常预览，1-延迟预览
@@ -4243,7 +4236,7 @@ DVR实现巡航数据结构
         public NET_DVR_STREAM_INFO struIDInfo;
         public NET_DVR_TIME struBeginTime;
         public NET_DVR_TIME struEndTime;
-      //  public HWND hWnd;
+        public HWND hWnd;
         public byte byDrawFrame; //0:不抽帧，1：抽帧
         public byte byVolumeType;  //0-普通录像卷  1-存档卷
         public byte byVolumeNum;  //卷号，目前指存档卷号
@@ -9165,13 +9158,6 @@ DVR实现巡航数据结构
         public byte byGrayLevel; //灰度值域，0-[0-255]，1-[16-235]
     }
 
-    //云台锁定配置结构体
-    public static class NET_DVR_PTZ_LOCKCFG extends Structure {
-        public int dwSize;//结构体大小
-        public byte  byWorkMode ;//云台锁定控制：0- 解锁，1- 锁定
-        public byte[] byRes = new byte[123];
-    }
-
 
     public static class NET_DVR_GAIN extends Structure {
         public byte byGainLevel; /*增益：0-100*/
@@ -9484,10 +9470,6 @@ DVR实现巡航数据结构
         public byte byLinkStatus;//输出口连接状态，0-无效,1-接入显示器,2-未接入显示器
         public byte[] byRes2 = new byte[51];
     }
-    //因为Java没有二维数组，BYTE_TWODIM是自定义的结构体
-    public static class BYTE_TWODIM extends Structure {
-        public byte[] strIP = new byte[16];
-    }
 
     public static class WALLOUTPUTPARAM_ARRAY extends Structure {
         public NET_DVR_WALLOUTPUTPARAM[] strWalloutputParm;
@@ -9535,9 +9517,9 @@ DVR实现巡航数据结构
         public void invoke(int dwType, int lUserID, int lHandle, Pointer pUser);
     }
 
-//    public static interface FDrawFun extends Callback {
-//        public void invoke(int lRealHandle, W32API.HDC hDc, int dwUser);
-//    }
+    public static interface FDrawFun extends Callback {
+        public void invoke(int lRealHandle, W32API.HDC hDc, int dwUser);
+    }
 
     public static interface FStdDataCallBack extends Callback {
         public void invoke(int lRealHandle, int dwDataType, ByteByReference pBuffer, int dwBufSize, int dwUser);
@@ -9555,14 +9537,14 @@ DVR实现巡航数据结构
     }
 
     public static interface FVoiceDataCallBack_V30 extends Callback {
-        public void invoke(int lVoiceComHandle, Pointer pRecvDataBuffer, int dwBufSize, byte byAudioFlag, int pUser);
+        public void invoke(int lVoiceComHandle, Pointer pRecvDataBuffer, int dwBufSize, byte byAudioFlag, Pointer pUser);
     }
 
     public static interface FVoiceDataCallBack_MR extends Callback {
         public void invoke(int lVoiceComHandle, Pointer pRecvDataBuffer, int dwBufSize, byte byAudioFlag, int dwUser);
     }
 
-    public static interface FVoiceDataCallback_MR_V30 extends Callback {
+    public static interface FVoiceDataCallBack_MR_V30 extends Callback {
         public void invoke(int lVoiceComHandle, Pointer pRecvDataBuffer, int dwBufSize, byte byAudioFlag, Pointer pUser);
     }
 
@@ -9633,9 +9615,9 @@ DVR实现巡航数据结构
 
     boolean NET_DVR_UnlockFileByName(int lUserID, String sUnlockFileName);
 
- //   int NET_DVR_PlayBackByName(int lUserID, String sPlayBackFileName, HWND hWnd);
+    int NET_DVR_PlayBackByName(int lUserID, String sPlayBackFileName, HWND hWnd);
 
-  //  int NET_DVR_PlayBackByTime(int lUserID, int lChannel, NET_DVR_TIME lpStartTime, NET_DVR_TIME lpStopTime, HWND hWnd);
+    int NET_DVR_PlayBackByTime(int lUserID, int lChannel, NET_DVR_TIME lpStartTime, NET_DVR_TIME lpStopTime, HWND hWnd);
 
     int NET_DVR_PlayBackByTime_V40(int lUserID, NET_DVR_VOD_PARA pVodPara);
 
@@ -9705,7 +9687,7 @@ DVR实现巡航数据结构
 
     boolean NET_DVR_StopListen();
 
-    int NET_DVR_StartListen_V30(String sLocalIP, short wLocalPort, FMSGCallBack_V31 DataCallBack, Pointer pUserData);
+    int NET_DVR_StartListen_V30(String sLocalIP, short wLocalPort, FMSGCallBack DataCallBack, Pointer pUserData);
 
     boolean NET_DVR_StopListen_V30(int lListenHandle);
 
@@ -9738,7 +9720,7 @@ DVR实现巡航数据结构
 
     boolean NET_DVR_StopRealPlay(int lRealHandle);
 
-    //boolean NET_DVR_RigisterDrawFun(int lRealHandle, FDrawFun fDrawFun, int dwUser);
+    boolean NET_DVR_RigisterDrawFun(int lRealHandle, FDrawFun fDrawFun, int dwUser);
 
     boolean NET_DVR_SetPlayerBufNumber(int lRealHandle, int dwBufNum);
 
@@ -9890,8 +9872,7 @@ DVR实现巡航数据结构
     //语音转发
     int NET_DVR_StartVoiceCom_MR(int lUserID, FVoiceDataCallBack_MR fVoiceDataCallBack, int dwUser);
 
-
-    int NET_DVR_StartVoiceCom_MR_V30(int lUserID, int dwVoiceChan, FVoiceDataCallback_MR_V30 fVoiceDataCallBack, Pointer pUser);
+    int NET_DVR_StartVoiceCom_MR_V30(int lUserID, int dwVoiceChan, FVoiceDataCallBack_MR_V30 fVoiceDataCallBack, Pointer pUser);
 
     boolean NET_DVR_VoiceComSendData(int lVoiceComHandle, byte[] pSendBuf, int dwBufSize);
 
@@ -9943,7 +9924,7 @@ DVR实现巡航数据结构
     void NET_DVR_ReleaseG722Decoder(Pointer pDecHandle);
 
     //G711: Win64、Linux32、Linux64
-    Pointer NET_DVR_InitG711Encoder(NET_DVR_AUDIOENC_INFO enc_info);//NET_DVR_AUDIOENC_INFO
+    Pointer NET_DVR_InitG711Encoder(Pointer enc_info); //NET_DVR_AUDIOENC_INFO
 
     boolean NET_DVR_EncodeG711Frame(Pointer handle, NET_DVR_AUDIOENC_PROCESS_PARAM p_enc_proc_param);
 
@@ -10261,7 +10242,7 @@ DVR实现巡航数据结构
 
     boolean NET_DVR_InquestStopResume(int lHandle);
 
-    boolean NET_DVR_GetLocalIP(BYTE_TWODIM[] strIP, IntByReference pValidNum, boolean pEnableBind);
+    boolean NET_DVR_GetLocalIP(byte[] strIP, IntByReference pValidNum, boolean pEnableBind);
 
     boolean NET_DVR_SetValidIP(int dwIPIndex, boolean bEnableBind);
 
@@ -10636,7 +10617,7 @@ interface PlayCtrl extends Library {
 
     boolean PlayM4_SetStreamOpenMode(int nPort, int nMode);
 
- //   boolean PlayM4_Play(int nPort, HWND hWnd);
+    boolean PlayM4_Play(int nPort, HWND hWnd);
 
     boolean PlayM4_Stop(int nPort);
 
@@ -10666,30 +10647,30 @@ interface PlayCtrl extends Library {
 }
 
 //windows gdi接口,gdi32.dll in system32 folder, 在设置遮挡区域,移动侦测区域等情况下使用
-//interface GDI32 extends W32API {
-//    GDI32 INSTANCE = (GDI32) Native.loadLibrary("gdi32", GDI32.class, DEFAULT_OPTIONS);
-//
-//    public static final int TRANSPARENT = 1;
-//
-//    int SetBkMode(HDC hdc, int i);
-//
-//    HANDLE CreateSolidBrush(int icolor);
-//}
+interface GDI32 extends W32API {
+    GDI32 INSTANCE = (GDI32) Native.loadLibrary("gdi32", GDI32.class, DEFAULT_OPTIONS);
 
-////windows user32接口,user32.dll in system32 folder, 在设置遮挡区域,移动侦测区域等情况下使用
-//interface USER32 extends W32API {
-//
-//    USER32 INSTANCE = (USER32) Native.loadLibrary("user32", USER32.class, DEFAULT_OPTIONS);
-//
-//    public static final int BF_LEFT = 0x0001;
-//    public static final int BF_TOP = 0x0002;
-//    public static final int BF_RIGHT = 0x0004;
-//    public static final int BF_BOTTOM = 0x0008;
-//    public static final int BDR_SUNKENOUTER = 0x0002;
-//    public static final int BF_RECT = (BF_LEFT | BF_TOP | BF_RIGHT | BF_BOTTOM);
-//
-//    boolean DrawEdge(HDC hdc, com.sun.jna.examples.win32.GDI32.RECT qrc, int edge, int grfFlags);
-//
-//    int FillRect(HDC hDC, com.sun.jna.examples.win32.GDI32.RECT lprc, HANDLE hbr);
-//}
-//
+    public static final int TRANSPARENT = 1;
+
+    int SetBkMode(HDC hdc, int i);
+
+    HANDLE CreateSolidBrush(int icolor);
+}
+
+//windows user32接口,user32.dll in system32 folder, 在设置遮挡区域,移动侦测区域等情况下使用
+interface USER32 extends W32API {
+
+    USER32 INSTANCE = (USER32) Native.loadLibrary("user32", USER32.class, DEFAULT_OPTIONS);
+
+    public static final int BF_LEFT = 0x0001;
+    public static final int BF_TOP = 0x0002;
+    public static final int BF_RIGHT = 0x0004;
+    public static final int BF_BOTTOM = 0x0008;
+    public static final int BDR_SUNKENOUTER = 0x0002;
+    public static final int BF_RECT = (BF_LEFT | BF_TOP | BF_RIGHT | BF_BOTTOM);
+
+    boolean DrawEdge(HDC hdc, com.sun.jna.examples.win32.GDI32.RECT qrc, int edge, int grfFlags);
+
+    int FillRect(HDC hDC, com.sun.jna.examples.win32.GDI32.RECT lprc, HANDLE hbr);
+}
+

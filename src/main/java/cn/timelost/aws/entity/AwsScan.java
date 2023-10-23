@@ -23,6 +23,9 @@ import java.util.Date;
 @Accessors(chain = true)
 public class AwsScan implements Serializable {
 
+    //table设置id属性为主键，并且主键是自动增长的方式
+    //@TableId(value = "id",type = IdType.AUTO)
+
     private static final long serialVersionUID = 1L;
     @TableId(value = "id",type = IdType.AUTO)
     private Integer id;
@@ -109,5 +112,10 @@ public class AwsScan implements Serializable {
      * 摄像头厂家（1宇视，2海康）
      */
     private Integer factory;
+
+    /**
+     * 监控机位
+     */
+    private Integer position;
 
 }

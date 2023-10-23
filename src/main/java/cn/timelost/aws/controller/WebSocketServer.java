@@ -2,7 +2,9 @@ package cn.timelost.aws.controller;
 
 import cn.timelost.aws.NetDemo.NetDevMain;
 import cn.timelost.aws.config.realm.UserRealm;
+import cn.timelost.aws.entity.AwsScan;
 import cn.timelost.aws.mapper.AwsScanMapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -69,8 +71,17 @@ public class WebSocketServer {
         webSocketSet.add(session);
         // sessionPool.put(deviceId, session);
         log.info("建立连接完成,当前在线人数为：{}", webSocketSet.size());
-       // AwsScan scan = scanMapper.selectById(deviceId);
-        //dev = new NetDevMain(session, scan.getUserName(), scan.getPassword(), scan.getVideoIp(), scan.getVideoPort());
+        //扫描本地摄像设备，实时获取视频流
+        //以下两行代码插入摄像头设备数据后再打开
+//
+//       QueryWrapper<AwsScan> queryWrapper=new QueryWrapper();
+//       queryWrapper.eq("device_id",deviceId);
+//       AwsScan scan = scanMapper.selectOne(queryWrapper);
+//        if (scan != null){
+//            dev = new NetDevMain(session, scan.getUserName(), scan.getPassword(), scan.getVideoIp(), scan.getVideoPort());
+//        }
+//这里要做分类
+        //记得注释掉这行代码
         TaskTimer(deviceId, session);
         System.err.println("webSocketSet数量" + webSocketSet.size());
     }

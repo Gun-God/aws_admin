@@ -1,5 +1,6 @@
 package cn.timelost.aws.service.impl;
 
+import cn.timelost.aws.config.realm.UserRealm;
 import cn.timelost.aws.entity.*;
 import cn.timelost.aws.entity.vo.NowPreCheckVo;
 import cn.timelost.aws.mapper.*;
@@ -8,9 +9,6 @@ import cn.timelost.aws.utils.DateUtil;
 import cn.timelost.aws.vo.ResultVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import jdk.nashorn.internal.objects.annotations.Setter;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,12 +48,18 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
     @Autowired
     AwsSystemLogMapper logMapper;
 
+    @Autowired
+    AwsUserMapper userMapper;
+
     @Override
     public ResultVo getNowPreCheckData() {
+        String orgCode=UserRealm.ORGCODE;
         List<NowPreCheckVo> nowPreCheckVoList = new ArrayList<>();
         for (int i = 1; i <= 2; i++) {
             QueryWrapper<AwsPreCheckData> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("lane", i);
+            if (orgCode!=null)
+                queryWrapper.eq("org_code",orgCode);
             queryWrapper.orderByDesc("create_time");
             queryWrapper.last("limit 1");
             AwsPreCheckData preCheckData = awsPreCheckDataMapper.selectOne(queryWrapper);

@@ -46,9 +46,9 @@ class BaseFun {
 		String OsArch = getOsArch();
 		
 		if(OsArch.toLowerCase().startsWith("win32-x86")) {
-			loadLibrary = filePath + "\\libs\\win32\\";
+			loadLibrary = filePath + "\\libs\\unv\\win32\\";
 		} else if(OsArch.toLowerCase().startsWith("win32-amd64") ) {
-			loadLibrary = filePath + "\\libs\\win64\\";
+			loadLibrary = filePath + "\\libs\\unv\\win64\\";
 		} 
 
 		String loadSDKLibrary = loadLibrary + "NetDEVSDK";
