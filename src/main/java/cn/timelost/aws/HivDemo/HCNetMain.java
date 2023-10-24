@@ -120,6 +120,16 @@ public class HCNetMain {
         //实时取流
         VideoDemo.realPlay(session,lUserID,lDChannel);
 
+
+//        //退出程序时调用，每一台设备分别注销
+//        if (hCNetSDK.NET_DVR_Logout(lUserID)) {
+//            System.out.println("注销成功");
+//        }
+//
+//        //SDK反初始化，释放资源，只需要退出时调用一次
+//        hCNetSDK.NET_DVR_Cleanup();
+
+
     }
 
 /*

@@ -711,12 +711,11 @@ public class VideoDemo {
             byte[] bytes = pBuffer.getPointer().getByteArray(0, dwBufSize);
             ByteBuffer buffer = ByteBuffer.wrap(bytes);
             System.err.println("进入回调函数");
-            if (session != null) WebSocketServer.sendBufferToWeb(session, buffer);
-//            if (Count == 100) {//降低打印频率
-//                System.out.println("码流数据回调...dwBufSize=" + dwBufSize);
-//                Count = 0;
-//            }
-//            Count++;
+            if (session != null)
+                WebSocketServer.sendBufferToWeb(session, buffer);
+
+
+        /*
             //播放库解码
             switch (dwDataType) {
                 case HCNetSDK.NET_DVR_SYSHEAD: //系统头
@@ -746,7 +745,7 @@ public class VideoDemo {
                             break;
                         }
                     }
-            }
+            }*/
         }
     }
 

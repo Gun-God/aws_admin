@@ -1,5 +1,6 @@
 package cn.timelost.aws.controller;
 
+import cn.timelost.aws.HivDemo.HCNetMain;
 import cn.timelost.aws.NetDemo.NetDevMain;
 import cn.timelost.aws.config.realm.UserRealm;
 import cn.timelost.aws.entity.AwsScan;
@@ -39,6 +40,7 @@ public class WebSocketServer {
     private static CopyOnWriteArraySet<Session> webSocketSet = new CopyOnWriteArraySet<>();
     private static ConcurrentHashMap<Session, Timer> timerMap = new ConcurrentHashMap<>();
     private NetDevMain dev;
+    private HCNetMain hc_dev;
 
     @Autowired
     AwsScanMapper scanMapper;
@@ -77,8 +79,16 @@ public class WebSocketServer {
 //       QueryWrapper<AwsScan> queryWrapper=new QueryWrapper();
 //       queryWrapper.eq("device_id",deviceId);
 //       AwsScan scan = scanMapper.selectOne(queryWrapper);
-//        if (scan != null){
-//            dev = new NetDevMain(session, scan.getUserName(), scan.getPassword(), scan.getVideoIp(), scan.getVideoPort());
+//       //判断种类
+//        if (scan != null && scan.getState()==1 ){
+//            if(scan.getFactory()==1)
+//            {//宇视摄像头
+//                dev = new NetDevMain(session, scan.getUserName(), scan.getPassword(), scan.getVideoIp(), scan.getVideoPort());
+//            }
+//            else if(scan.getFactory()==2){//海康摄像头
+//                hc_dev=new HCNetMain(session, scan.getUserName(), scan.getPassword(), scan.getVideoIp(), Integer.parseInt(scan.getVideoPort()));
+//            }
+//
 //        }
 //这里要做分类
         //记得注释掉这行代码
