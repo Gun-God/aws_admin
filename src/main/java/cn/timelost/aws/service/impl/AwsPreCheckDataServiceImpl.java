@@ -55,7 +55,7 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
     public ResultVo getNowPreCheckData() {
         String orgCode=UserRealm.ORGCODE;
         List<NowPreCheckVo> nowPreCheckVoList = new ArrayList<>();
-        for (int i = 1; i <= 2; i++) {
+        for (int i = 2; i <= 3; i++) {
             QueryWrapper<AwsPreCheckData> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("lane", i);
             if (orgCode!=null)
@@ -69,7 +69,9 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
                 vo1.setCarNo(preCheckData.getCarNo());
                 vo1.setCreateTime(preCheckData.getCreateTime());
                 vo1.setLimitAmt(preCheckData.getLimitAmt());
-                vo1.setWeight(preCheckData.getWeight());
+                vo1.setWeight(preCheckData.getPreAmt());
+                vo1.setImg(preCheckData.getImg());
+
                 Integer carType = preCheckData.getCarTypeId();
                 if (carType != null) {
                     AwsCarType car = carTypeMapper.selectById(carType);
@@ -104,16 +106,21 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
             AwsPreCheckDataHistory history = new AwsPreCheckDataHistory();
             BeanUtils.copyProperties(apc, history);
             history.setId(null);
-            if (historyMapper.insert(history) != 0) {
+//            if (historyMapper.insert(history) != 0) {
                 count++;
                 awsPreCheckDataMapper.deleteById(apc.getId());
-            }
+        //    }
         }
         AwsSystemLog log = new AwsSystemLog();
         log.setContent("定时任务:预检数据转到历史表,已转入" + count + "条");
         log.setCreateTime(new Date());
         logMapper.insert(log);
         // System.err.println("已全部转入");
+    }
+
+    @Override
+    public void transferPreDataTemp() {
+
     }
 
     @Override

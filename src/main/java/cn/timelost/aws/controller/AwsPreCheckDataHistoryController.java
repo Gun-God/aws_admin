@@ -37,7 +37,11 @@ public class AwsPreCheckDataHistoryController {
                                                                        @RequestParam(value = "limitAmt", required = false) Double limitAmt,
                                                                        @RequestParam(value = "axisNum", required = false) Integer axisNum,
                                                                        @RequestParam(value = "startT", required = false) String startT,
-                                                                       @RequestParam(value = "endT", required = false) String endT) {
+                                                                       @RequestParam(value = "endT", required = false) String endT)
+    {
+
+
+
         return preCheckDataHistoryService.findAll(page, size, carNo, lane, limitAmt, axisNum, startT, endT);
     }
 

@@ -136,6 +136,19 @@
             <systemPath>${project.basedir}/libs/jna.jar</systemPath>
         </dependency>
 
+        <dependency>
+            <!--groupId 随便填写 -->
+            <groupId>com.sun</groupId>
+            <!--artifactId 随便填写-->
+            <artifactId>examples</artifactId>
+            <!--version 随便填写-->
+            <version>4.5.1</version>
+            <!-- scope=system表示此依赖是来自外部jar，而不是maven仓库。当scope设置为system时，systemPath属性才会生效，systemPath为一个物理文件路径，来指定依赖的jar其物理磁盘的位置。 -->
+            <scope>system</scope>
+            <!-- ${project.basedir}代表根目录 -->
+            <systemPath>${project.basedir}/libs/examples.jar</systemPath>
+        </dependency>
+
 
 <!--        <dependency>-->
 <!--            <groupId>net.java.dev.jna</groupId>-->

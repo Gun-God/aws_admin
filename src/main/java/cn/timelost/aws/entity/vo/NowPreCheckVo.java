@@ -21,5 +21,6 @@ public class NowPreCheckVo {
     public Double height=0.0;
     public Integer type;
     public Integer color;
+    public String img;
 
 }

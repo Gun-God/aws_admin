@@ -50,6 +50,10 @@ public class AwsPreCheckDataController {
          preCheckDataService.transferPreData();
     }
 
+//    @Scheduled(cron ="0/1 * * * * ? ")
+//    public void PreCheckDataScheduledIntoTemp(){
+//        preCheckDataService.transferPreData();
+//    }
 
     @RequestMapping(value = "/getCarCountCurrent", method = RequestMethod.GET)
     public int getCarCountCurrent(){

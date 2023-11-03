@@ -10496,7 +10496,7 @@ public interface NetDEVSDKLib extends Library {
 	 * @return TRUE表示成功,其他表示失败 TRUE means success, and any other value means failure.
 	 * @note pstRect为空时,显示全部画面,即退出数字放大 All images will be displayed with digital zoom disabled when pstRect is null
 	 */
-	public boolean NETDEV_SetDigitalZoom(Pointer lpPlayHandle, Pointer hWnd, NETDEV_RECT_S pstRect);
+//	public boolean NETDEV_SetDigitalZoom(Pointer lpPlayHandle, Pointer hWnd, NETDEV_RECT_S pstRect);
 
 	/**
 	 * 动态产生一个关键帧 Dynamically create an I frame

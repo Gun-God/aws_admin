@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
@@ -42,8 +43,19 @@ public class WebSocketServer {
     private NetDevMain dev;
     private HCNetMain hc_dev;
 
+    public static WebSocketServer socketServer;
+
+    public WebSocketServer() {
+    }
+
     @Autowired
     AwsScanMapper scanMapper;
+    @PostConstruct
+    public void init() {
+        socketServer=this;
+        socketServer.scanMapper = this.scanMapper;
+
+    }
     /**
      * 建立WebSocket连接
      *
@@ -51,11 +63,11 @@ public class WebSocketServer {
      * @param deviceId 设备唯一标识
      */
     @OnOpen
-    public void onOpen(Session session, @PathParam("deviceId") String deviceId) {
+    public void onOpen(Session session, @PathParam("deviceId") Integer position) {
         this.session = session;
         String userName = UserRealm.USERNAME;
         log.info("WebSocket建立连接中,用户名：{}", userName);
-        log.info("WebSocket建立连接中,连接设备ID：{}", deviceId);
+        log.info("WebSocket建立连接中,连接设备ID：{}", position);
 //        if (deviceId != null) {
 //            try {
 //                Session historySession = sessionPool.get(deviceId);
@@ -75,24 +87,25 @@ public class WebSocketServer {
         log.info("建立连接完成,当前在线人数为：{}", webSocketSet.size());
         //扫描本地摄像设备，实时获取视频流
         //以下两行代码插入摄像头设备数据后再打开
-//
-//       QueryWrapper<AwsScan> queryWrapper=new QueryWrapper();
-//       queryWrapper.eq("device_id",deviceId);
-//       AwsScan scan = scanMapper.selectOne(queryWrapper);
-//       //判断种类
-//        if (scan != null && scan.getState()==1 ){
-//            if(scan.getFactory()==1)
-//            {//宇视摄像头
-//                dev = new NetDevMain(session, scan.getUserName(), scan.getPassword(), scan.getVideoIp(), scan.getVideoPort());
-//            }
-//            else if(scan.getFactory()==2){//海康摄像头
-//                hc_dev=new HCNetMain(session, scan.getUserName(), scan.getPassword(), scan.getVideoIp(), Integer.parseInt(scan.getVideoPort()));
-//            }
-//
-//        }
+
+       QueryWrapper<AwsScan> queryWrapper=new QueryWrapper();
+       queryWrapper.eq("position",position);
+       AwsScan scan = socketServer.scanMapper.selectOne(queryWrapper);
+       //判断种类
+        if (scan != null && scan.getState()==1 ){
+            if(scan.getFactory()==1)
+            {//宇视摄像头
+                dev = new NetDevMain(session, scan.getUserName(), scan.getPassword(), scan.getVideoIp(), scan.getVideoPort());
+            }
+            else if(scan.getFactory()==2){//海康摄像头
+                hc_dev=new HCNetMain(session, scan.getUserName(), scan.getPassword(), scan.getVideoIp(), Integer.parseInt(scan.getVideoPort()));
+
+            }
+
+        }
 //这里要做分类
         //记得注释掉这行代码
-        TaskTimer(deviceId, session);
+        //TaskTimer(deviceId, session);
         System.err.println("webSocketSet数量" + webSocketSet.size());
     }
 
@@ -123,7 +136,7 @@ public class WebSocketServer {
      */
     @OnClose
     public void onClose() {
-        timerMap.get(session).cancel();
+       // timerMap.get(session).cancel();
         // sessionPool.clear();
         webSocketSet.remove(session);
         log.info("连接断开,当前在线人数为：{}", webSocketSet.size());
