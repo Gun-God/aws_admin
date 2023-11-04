@@ -51,11 +51,14 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
     @Autowired
     AwsUserMapper userMapper;
 
+
+
     @Override
     public ResultVo getNowPreCheckData() {
         String orgCode=UserRealm.ORGCODE;
         List<NowPreCheckVo> nowPreCheckVoList = new ArrayList<>();
-        for (int i = 2; i <= 3; i++) {
+
+        for (int i = 2; i <= 4; i++) {
             QueryWrapper<AwsPreCheckData> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("lane", i);
             if (orgCode!=null)
@@ -73,17 +76,30 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
                 vo1.setImg(preCheckData.getImg());
 
                 Integer carType = preCheckData.getCarTypeId();
+
                 if (carType != null) {
                     AwsCarType car = carTypeMapper.selectById(carType);
-                    vo1.setHeight(car.getHeight());
-                    vo1.setLength(car.getLength());
-                    vo1.setWidth(car.getWidth());
+                    if(car!=null) {
+                        vo1.setLimitAmt(car.getLimitAmt());
+                        vo1.setHeight(car.getHeight());
+                        vo1.setLength(car.getLength());
+                        vo1.setWidth(car.getWidth());
+                    }
                 }
                 vo1.setType(i);
                 vo1.setColor(preCheckData.getColor());
                 nowPreCheckVoList.add(vo1);
             }
         }
+        Date d=nowPreCheckVoList.get(0).getCreateTime();
+        Date d2=nowPreCheckVoList.get(1).getCreateTime();
+        if (d.before(d2))
+            nowPreCheckVoList.remove(0);
+        else {
+            nowPreCheckVoList.remove(1);
+        }
+
+
         return ResultVo.success(nowPreCheckVoList);
     }
 
