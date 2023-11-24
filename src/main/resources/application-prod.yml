@@ -1,21 +1,30 @@
-#正式环境
+#开发环境
 spring:
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost/ehr?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-    username: ehr
-    password: 3DHzbydicAyme84y
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://192.168.10.254:5432/aws?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: postgres
+    password: 123456
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
     default-property-inclusion: NON_NULL
-mybatis:
-  mapper-locations: classpath:mappers/*Dao.xml
+#mybatis:
+#  mapper-locations: classpath:mappers/*Dao.xml
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#    map-underscore-to-camel-case: true
+#配置日志
+mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-    map-underscore-to-camel-case: true
 server:
-  port: 8080
+  port: 8787
+  tomcat.uri-encoding: UTF-8
+  servlet:
+    context-path: /aws
+    session:
+      timeout: 60m
 
 upyun:
   bucketName: xxx

@@ -1,6 +1,7 @@
 package cn.timelost.aws.config;
 
 import cn.hutool.json.JSONUtil;
+import cn.timelost.aws.config.realm.UserRealm;
 import cn.timelost.aws.enums.ResultEnum;
 import cn.timelost.aws.mapper.AwsRoleMapper;
 import cn.timelost.aws.vo.ResultVo;
@@ -57,6 +58,8 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
         //1.检查请求头中是否含有token
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String token = httpServletRequest.getHeader("Authorization");
+        UserRealm.ORGCODE=httpServletRequest.getHeader("OrgCode");
+        System.err.println("tesssss"+httpServletRequest.getHeader("OrgCode"));
         //2. 如果客户端没有携带token，拦下请求
         if (ObjectUtils.isEmpty(token)) {
             token = httpServletRequest.getParameter("token");

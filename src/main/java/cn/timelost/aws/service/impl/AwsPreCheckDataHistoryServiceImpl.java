@@ -1,5 +1,6 @@
 package cn.timelost.aws.service.impl;
 
+import cn.timelost.aws.config.realm.UserRealm;
 import cn.timelost.aws.entity.AwsPreCheckData;
 import cn.timelost.aws.entity.AwsPreCheckDataHistory;
 import cn.timelost.aws.mapper.AwsPreCheckDataHistoryMapper;
@@ -36,7 +37,9 @@ public class AwsPreCheckDataHistoryServiceImpl extends ServiceImpl<AwsPreCheckDa
     public PageInfo<AwsPreCheckDataHistory> findAll(int pageNum, int pageSize, String carNo, Integer lane, Double limitAmt, Integer axisNum, String startT, String endT) {
         SimpleDateFormat sm = new SimpleDateFormat("yyyy-MM-dd");
         QueryWrapper<AwsPreCheckDataHistory> qw = new QueryWrapper<>();
-       // QueryWrapper<AwsPreCheckData> qw2=new QueryWrapper<>();
+        String orgCode= UserRealm.ORGCODE;
+
+        // QueryWrapper<AwsPreCheckData> qw2=new QueryWrapper<>();
 
         if (!("").equals(carNo) && carNo != null)
         {
@@ -81,6 +84,12 @@ public class AwsPreCheckDataHistoryServiceImpl extends ServiceImpl<AwsPreCheckDa
                 e.printStackTrace();
             }
         }
+
+        if(orgCode!=null && (!orgCode.equals("9999")) )
+        {
+            qw.eq("org_code",orgCode);
+        }
+
         qw.orderByDesc("create_time");
         //qw2.orderByDesc("create_time");
         PageHelper.startPage(pageNum, pageSize);

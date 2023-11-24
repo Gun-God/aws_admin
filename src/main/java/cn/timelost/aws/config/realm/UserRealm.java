@@ -30,6 +30,7 @@ public class UserRealm extends AuthorizingRealm {
 
     public static String USERNAME;
     public static String ORGCODE=null;
+    public static int ROLEID=-1;
 
     @Resource
     AwsUserService userService;
@@ -69,9 +70,13 @@ public class UserRealm extends AuthorizingRealm {
             throw new AuthenticationException("token异常");
         }
         AwsUser userBean = userService.findByUsername(username);
-        if (ORGCODE==null)
-            ORGCODE=userMapper.selectOne(new QueryWrapper<AwsUser>().lambda().eq(AwsUser::getUsername,username)).getOrgCode();
-        System.err.println("编号"+ORGCODE);
+//        if (ORGCODE==null)
+//            ORGCODE=userMapper.selectOne(new QueryWrapper<AwsUser>().lambda().eq(AwsUser::getUsername,username)).getOrgCode();
+//        if (ORGCODE==null)
+//            ORGCODE=userMapper.selectOne(new QueryWrapper<AwsUser>().lambda().eq(AwsUser::getUsername,username)).getOrgCode();
+        ROLEID=userMapper.selectOne(new QueryWrapper<AwsUser>().lambda().eq(AwsUser::getUsername,username)).getRoleId();
+        //System.err.println("编号"+ORGCODE);
+        //System.err.println("用户权限"+ROLEID);
         if (!JWTUtils.verify(token, username, userBean.getPassword())) {
             throw new AuthenticationException("账号或密码错误");
         }

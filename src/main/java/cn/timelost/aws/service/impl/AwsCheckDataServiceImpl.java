@@ -1,5 +1,6 @@
 package cn.timelost.aws.service.impl;
 
+import cn.timelost.aws.config.realm.UserRealm;
 import cn.timelost.aws.entity.AwsCheckData;
 import cn.timelost.aws.mapper.AwsCheckDataMapper;
 import cn.timelost.aws.service.AwsCheckDataService;
@@ -30,6 +31,8 @@ public class AwsCheckDataServiceImpl extends ServiceImpl<AwsCheckDataMapper, Aws
 
     @Override
     public PageInfo<AwsCheckData> findAll(int pageNum, int pageSize, String carNo, Integer lane, Double limitAmt, Integer axisNum, String startT, String endT) {
+                String orgCode= UserRealm.ORGCODE;
+
         SimpleDateFormat sm = new SimpleDateFormat("yyyy-MM-dd");
         QueryWrapper<AwsCheckData> qw = new QueryWrapper<>();
         if (!("").equals(carNo) && carNo != null)
@@ -47,6 +50,7 @@ public class AwsCheckDataServiceImpl extends ServiceImpl<AwsCheckDataMapper, Aws
                 e.printStackTrace();
             }
         }
+        qw.eq("org_code",orgCode);
         qw.orderByDesc("create_time");
         PageHelper.startPage(pageNum, pageSize);
         List<AwsCheckData> historyList = checkDataMapper.selectList(qw);

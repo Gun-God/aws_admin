@@ -67,6 +67,24 @@ public class AwsUserController {
         user.setToken(token);
         user.setOrgCode(us.getOrgCode());
         user.setId(us.getId());
+        if(us.getRoleId()==3) //如果是精检用户 则显示精检表
+        {
+            user.setIShow(true);
+        }
+        else{
+            user.setIShow(false);
+        }
+
+        if(us.getRoleId()==1)//超级管理员
+        {
+            user.setIShowSuperRole(true);
+        }
+        else
+        {
+            user.setIShowSuperRole(false);
+        }
+
+        user.setRoleId(us.getRoleId());
         logService.InsertUserLog("用户" + us.getUserCode() + "登录", 0);
         return ResultVo.success(user);
     }

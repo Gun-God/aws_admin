@@ -1,6 +1,7 @@
 package cn.timelost.aws.controller;
 
 
+import cn.timelost.aws.config.realm.UserRealm;
 import cn.timelost.aws.entity.AwsNspOrg;
 import cn.timelost.aws.mapper.AwsNspOrgMapper;
 import cn.timelost.aws.service.AwsNspOrgService;
@@ -29,7 +30,9 @@ public class AwsNspOrgController {
     AwsNspOrgService orgService;
 
     @RequestMapping(value = "/getOrgInfoByCode", method = RequestMethod.GET)
-    public ResultVo getOrgInfoByCode(@RequestParam(value = "orgCode") String orgCode){
+    public ResultVo getOrgInfoByCode(){
+        String orgCode= UserRealm.ORGCODE;
+
         AwsNspOrg org=orgMapper.selectOne(new QueryWrapper<AwsNspOrg>().eq("code",orgCode));
         return ResultVo.success(org);
     }

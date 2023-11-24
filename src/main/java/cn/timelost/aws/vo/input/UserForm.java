@@ -23,4 +23,6 @@ public class UserForm {
     private Integer Id;
     private String token;
     private String orgCode;
+    private boolean iShow;
+    private boolean iShowSuperRole;
 }

@@ -1,6 +1,8 @@
 package cn.timelost.aws.service.impl;
 
+import cn.timelost.aws.config.realm.UserRealm;
 import cn.timelost.aws.entity.AwsLed;
+import cn.timelost.aws.entity.AwsPreCheckData;
 import cn.timelost.aws.mapper.AwsLedMapper;
 import cn.timelost.aws.service.AwsLedService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -30,6 +32,8 @@ public class AwsLedServiceImpl extends ServiceImpl<AwsLedMapper, AwsLed> impleme
 
     @Override
     public PageInfo<AwsLed> findAll(int pageNum, int pageSize, String carNo, String startT, String endT) {
+        String orgCode= UserRealm.ORGCODE;
+
         SimpleDateFormat sm = new SimpleDateFormat("yyyy-MM-dd");
         QueryWrapper<AwsLed> qw = new QueryWrapper<>();
         if (!("").equals(carNo) && carNo != null)
@@ -41,6 +45,11 @@ public class AwsLedServiceImpl extends ServiceImpl<AwsLedMapper, AwsLed> impleme
                 e.printStackTrace();
             }
         }
+        if(orgCode!=null && (!orgCode.equals("9999")) )
+        {
+            qw.eq("org_code", orgCode);
+        }
+
         qw.orderByDesc("create_time");
         PageHelper.startPage(pageNum, pageSize);
         List<AwsLed> ledList = ledMapper.selectList(qw);

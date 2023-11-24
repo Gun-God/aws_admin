@@ -1,6 +1,7 @@
 package cn.timelost.aws.controller;
 
 
+import cn.timelost.aws.config.realm.UserRealm;
 import cn.timelost.aws.entity.AwsPreCheckData;
 import cn.timelost.aws.mapper.AwsPreCheckDataMapper;
 import cn.timelost.aws.service.AwsPreCheckDataService;
@@ -35,8 +36,16 @@ public class AwsPreCheckDataController {
     AwsPreCheckDataService preCheckDataService;
 
     @RequestMapping(value = "/getList", method = RequestMethod.GET)
-    public ResultVo getPreCheckDataNewList(@RequestParam(value = "orgCode") String orgCode){
-       List<AwsPreCheckData> dataList=preCheckDataMapper.selectList(new QueryWrapper<AwsPreCheckData>().eq("org_code",orgCode).orderByDesc("create_time").last("limit 30"));
+    public ResultVo getPreCheckDataNewList(){
+        String orgCode=UserRealm.ORGCODE;
+        List<AwsPreCheckData> dataList=null;
+
+        if(orgCode!=null && (!orgCode.equals("9999")) )
+        {
+            dataList=preCheckDataMapper.selectList(new QueryWrapper<AwsPreCheckData>().eq("org_code",orgCode).orderByDesc("create_time").last("limit 30"));
+        }else{
+            dataList=preCheckDataMapper.selectList(new QueryWrapper<AwsPreCheckData>().orderByDesc("create_time").last("limit 30"));
+        }
         return ResultVo.success(dataList);
     }
 
@@ -57,6 +66,7 @@ public class AwsPreCheckDataController {
 
     @RequestMapping(value = "/getCarCountCurrent", method = RequestMethod.GET)
     public int getCarCountCurrent(){
+
         return preCheckDataService.getCarCountToday();
     }
 

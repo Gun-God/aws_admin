@@ -61,8 +61,11 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
         for (int i = 2; i <= 4; i++) {
             QueryWrapper<AwsPreCheckData> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("lane", i);
-            if (orgCode!=null)
+            if (orgCode!=null &&(!orgCode.equals("9999")) )
+            {
                 queryWrapper.eq("org_code",orgCode);
+            }
+
             queryWrapper.orderByDesc("create_time");
             queryWrapper.last("limit 1");
             AwsPreCheckData preCheckData = awsPreCheckDataMapper.selectOne(queryWrapper);
@@ -91,13 +94,13 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
                 nowPreCheckVoList.add(vo1);
             }
         }
-        Date d=nowPreCheckVoList.get(0).getCreateTime();
-        Date d2=nowPreCheckVoList.get(1).getCreateTime();
-        if (d.before(d2))
-            nowPreCheckVoList.remove(0);
-        else {
-            nowPreCheckVoList.remove(1);
-        }
+//        Date d=nowPreCheckVoList.get(0).getCreateTime();
+//        Date d2=nowPreCheckVoList.get(1).getCreateTime();
+//        if (d.before(d2))
+//            nowPreCheckVoList.remove(0);
+//        else {
+//            nowPreCheckVoList.remove(1);
+//        }
 
 
         return ResultVo.success(nowPreCheckVoList);
@@ -142,6 +145,9 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
     @Override
     public int getCarCountToday() {
         QueryWrapper<AwsPreCheckData> qw = new QueryWrapper<>();
+        String orgCode=UserRealm.ORGCODE;
+        if(!orgCode.equals("9999"))
+            qw.lambda().eq(AwsPreCheckData::getOrgCode, orgCode);
         String d = DateUtil.formatDate(new Date(), "yyyy-MM-dd");
         qw.eq("to_char(create_time,'yyyy-MM-dd')", d);
         int count;
@@ -151,12 +157,16 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
 
     @Override
     public ResultVo getCarOverLoadToday() {
+        String orgCode=UserRealm.ORGCODE;
         int total = getCarCountToday();
         int limitC = 0, limitB = 0;
         double limitCPer = 0, limitBPer = 0;
         String d = DateUtil.formatDate(new Date(), "yyyy-MM-dd");
         if (total != 0) {
             QueryWrapper<AwsPreCheckData> qw = new QueryWrapper<>();
+
+            if(orgCode!=null && (!orgCode.equals("9999")) )
+                qw.lambda().eq(AwsPreCheckData::getOrgCode, orgCode);
             qw.eq("to_char(create_time,'yyyy-MM-dd')", d);
             // qw.lambda().eq(AwsPreCheckData::getCreateTime, new Date());
             qw.apply("pre_amt > limit_amt");
@@ -169,7 +179,13 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
                 if (p > 0.3)
                     limitC++;
             }
-            limitB = awsPreCheckDataMapper.selectCount(new QueryWrapper<AwsPreCheckData>().gt("pre_amt", 100).eq("to_char(create_time,'yyyy-MM-dd')", d));
+            QueryWrapper<AwsPreCheckData> qw1 = new QueryWrapper<>();
+            if(orgCode!=null && (!orgCode.equals("9999")) ) {
+                qw1.lambda().eq(AwsPreCheckData::getOrgCode, orgCode);
+            }
+            qw1.gt("pre_amt", 100).eq("to_char(create_time,'yyyy-MM-dd')", d);
+            limitB = awsPreCheckDataMapper.selectCount(qw1);
+//            limitB = awsPreCheckDataMapper.selectCount(new QueryWrapper<AwsPreCheckData>().gt("pre_amt", 100).eq("to_char(create_time,'yyyy-MM-dd')", d));
             BigDecimal b1 = BigDecimal.valueOf(((double) limitC / total) * 100);
             BigDecimal b2 = BigDecimal.valueOf(((double) limitB / total) * 100);
             limitCPer = b1.setScale(2, RoundingMode.HALF_UP).doubleValue();
@@ -189,11 +205,20 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
         List<Date[]> dates = DateUtil.before24HByNowDate();
         List<Integer> carCount = new ArrayList<>();
         List<String> xAxis = new ArrayList<>();
+        String orgCode=UserRealm.ORGCODE;
+
         String axis;
         for (int i = 0; i < dates.size(); i++) {
             Date[] da = dates.get(i);
             QueryWrapper<AwsPreCheckData> qw = new QueryWrapper<>();
-            qw.lambda().between(AwsPreCheckData::getCreateTime, da[0], da[1]);
+            if(orgCode!=null && (!orgCode.equals("9999")) )
+            {
+                qw.lambda().between(AwsPreCheckData::getCreateTime, da[0], da[1]).eq(AwsPreCheckData::getOrgCode, orgCode);
+            }
+            else{
+                qw.lambda().between(AwsPreCheckData::getCreateTime, da[0], da[1]);
+            }
+
             int count = awsPreCheckDataMapper.selectCount(qw);
             carCount.add(count);
             if (i == dates.size() - 1)
@@ -216,6 +241,7 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
 
     @Override
     public ResultVo getCarTypeCountCurrent() {
+        String orgCode=UserRealm.ORGCODE;
         String d = DateUtil.formatDate(new Date(), "yyyy-MM-dd");
         List<CarTypeVo> carTypeVos = new ArrayList<>();
 //        QueryWrapper<AwsCarType> qw = new QueryWrapper<>();
@@ -229,7 +255,15 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
         String name1 = "其他";
         for (int i = 0; i <= 8; i++) {
             QueryWrapper<AwsPreCheckData> qw1 = new QueryWrapper<>();
-            qw1.lambda().eq(AwsPreCheckData::getAxisNum, i);
+            if(orgCode!=null && (!orgCode.equals("9999")) )
+            {
+                qw1.lambda().eq(AwsPreCheckData::getAxisNum, i).eq(AwsPreCheckData::getOrgCode, orgCode);
+            }
+            else{
+                qw1.lambda().eq(AwsPreCheckData::getAxisNum, i);
+            }
+
+
             qw1.eq("to_char(create_time,'yyyy-MM-dd')", d);
             int count = awsPreCheckDataMapper.selectCount(qw1);
             if (i >= 2 && i < 6) {
