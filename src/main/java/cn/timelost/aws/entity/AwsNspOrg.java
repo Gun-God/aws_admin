@@ -86,4 +86,15 @@ public class AwsNspOrg implements Serializable {
      * 操作员
      */
     private String oper;
+
+
+    /**
+     * 下游精检站
+     * **/
+    private String checkOrg;
+
+    /**
+     * 方向名称
+     * */
+    private String directionName;
 }

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * <p>
@@ -34,11 +35,11 @@ public class AwsPreCheckDataHistoryServiceImpl extends ServiceImpl<AwsPreCheckDa
     @Autowired
     AwsPreCheckDataMapper   preCheckDataMapper;
     @Override
-    public PageInfo<AwsPreCheckDataHistory> findAll(int pageNum, int pageSize, String carNo, Integer lane, Double limitAmt, Integer axisNum, String startT, String endT) {
-        SimpleDateFormat sm = new SimpleDateFormat("yyyy-MM-dd");
+    public List<AwsPreCheckDataHistory> findAll(int pageNum, int pageSize, String carNo, Integer[] lane, Double limitAmt, Integer[] axisNum, String startT, String endT,Double preAmtStart,Double preAmtEnd, String preNo,String orgCode,Integer color) {
+        SimpleDateFormat sm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         QueryWrapper<AwsPreCheckDataHistory> qw = new QueryWrapper<>();
-        String orgCode= UserRealm.ORGCODE;
-
+//        String realCode= UserRealm.ORGCODE;
+        int roleId=UserRealm.ROLEID;
         // QueryWrapper<AwsPreCheckData> qw2=new QueryWrapper<>();
 
         if (!("").equals(carNo) && carNo != null)
@@ -47,9 +48,23 @@ public class AwsPreCheckDataHistoryServiceImpl extends ServiceImpl<AwsPreCheckDa
            // qw2.like("car_no", carNo);
         }
 
-        if (lane != null && lane != 0)
+        if (lane != null && lane.length>0)
         {
-            qw.eq("lane", lane);
+//            qw.nested(new Consumer<QueryWrapper<AwsPreCheckDataHistory>>() {
+//                @Override
+//                public void accept(QueryWrapper<AwsPreCheckDataHistory> awsPreCheckDataHistoryQueryWrapper) {
+//                    qw.eq("lane", lane[0]);
+//                    if(lane.length>1)
+//                    {
+//                        for(int i=1;i<lane.length;i++)
+//                        {
+//                            qw.or().eq("lane", lane[i]);
+//                        }
+//                    }
+//
+//                }
+//            });
+            qw.in("lane", lane);
             //qw2.eq("lane", lane);
         }
         if (limitAmt != null && limitAmt != 0)
@@ -57,11 +72,10 @@ public class AwsPreCheckDataHistoryServiceImpl extends ServiceImpl<AwsPreCheckDa
             qw.eq("limit_amt", limitAmt);
             //qw2.eq("limit_amt", limitAmt);
         }
-        if (axisNum != null && axisNum != 0)
-        {
-            qw.eq("axis_num", axisNum);
-           // qw2.eq("axis_num", axisNum);
 
+        if(preNo!=null &&!"".equals(preNo))
+        {
+            qw.eq("pre_no",preNo);
         }
 
         if (limitAmt != null && limitAmt != 0)
@@ -70,10 +84,21 @@ public class AwsPreCheckDataHistoryServiceImpl extends ServiceImpl<AwsPreCheckDa
             //qw2.eq("limit_amt", limitAmt);
         }
 
-        if (axisNum != null && axisNum != 0)
+        if (axisNum != null && axisNum.length>0)
         {
-            qw.eq("axis_num", axisNum);
-         //   qw2.eq("axis_num", axisNum);
+            qw.in("axis_num",axisNum);
+
+            //   qw2.eq("axis_num", axisNum);
+        }
+
+        if(color != null && color!=-1)
+        {
+            qw.eq("color", color);
+        }
+
+        if(preAmtStart != null && preAmtEnd!=null)
+        {
+            qw.between("pre_amt", preAmtStart, preAmtEnd);
         }
 
         if (startT != null && !startT.equals("")) {
@@ -85,15 +110,35 @@ public class AwsPreCheckDataHistoryServiceImpl extends ServiceImpl<AwsPreCheckDa
             }
         }
 
-        if(orgCode!=null && (!orgCode.equals("9999")) )
+        if(roleId==1 && orgCode!=null && !("".equals(orgCode)))
         {
             qw.eq("org_code",orgCode);
         }
+        else{
+            String oCode=UserRealm.ORGCODE;
+            qw.eq("org_code",oCode);
+        }
+
+//        if(orgCode!=null && !("".equals(orgCode)) && roleId==1 )//只有超级管理员才可以选择不同的org
+//        {
+//            qw.eq("org_code",orgCode);
+//        }
 
         qw.orderByDesc("create_time");
         //qw2.orderByDesc("create_time");
-        PageHelper.startPage(pageNum, pageSize);
-        List<AwsPreCheckDataHistory> historyList = preCheckDataHistoryMapper.selectList(qw);
+        if(pageSize!=-1)
+        {
+            PageHelper.startPage(pageNum, pageSize);
+            List<AwsPreCheckDataHistory> historyList = preCheckDataHistoryMapper.selectList(qw);
+            return historyList;
+        }
+        else{//-1表示不分页
+//            PageHelper.startPage(pageNum, pageSize);
+            List<AwsPreCheckDataHistory> historyList = preCheckDataHistoryMapper.selectList(qw);
+
+            return historyList;
+        }
+//        return null;
       ///  List<AwsPreCheckData>  perCheckList = preCheckDataMapper.selectList(qw2);
 //        for(AwsPreCheckData pc:perCheckList)
 //        {
@@ -112,6 +157,7 @@ public class AwsPreCheckDataHistoryServiceImpl extends ServiceImpl<AwsPreCheckDa
 //
 //        }
 
-        return new PageInfo<>(historyList);
+//        return new PageInfo<>(historyList);
+
     }
 }

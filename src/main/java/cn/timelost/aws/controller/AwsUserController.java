@@ -67,6 +67,7 @@ public class AwsUserController {
         user.setToken(token);
         user.setOrgCode(us.getOrgCode());
         user.setId(us.getId());
+        user.setName(us.getName());
         if(us.getRoleId()==3) //如果是精检用户 则显示精检表
         {
             user.setIShow(true);

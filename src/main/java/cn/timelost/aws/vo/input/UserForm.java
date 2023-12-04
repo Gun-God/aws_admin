@@ -25,4 +25,5 @@ public class UserForm {
     private String orgCode;
     private boolean iShow;
     private boolean iShowSuperRole;
+    private String name;
 }
