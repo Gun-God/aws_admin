@@ -51,14 +51,43 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
     @Autowired
     AwsUserMapper userMapper;
 
+    @Autowired
+    AwsScanMapper scanMapper;
 
 
     @Override
     public ResultVo getNowPreCheckData() {
         String orgCode=UserRealm.ORGCODE;
         List<NowPreCheckVo> nowPreCheckVoList = new ArrayList<>();
+        //查询当前org的前向scan摄像头
+        QueryWrapper<AwsScan> qw=new QueryWrapper<>();
+        qw.lambda().eq(AwsScan::getOrgCode,orgCode).eq(AwsScan::getDirection,1).eq(AwsScan::getType,3).ne(AwsScan::getState,0);
+        List<AwsScan> scanlist=scanMapper.selectList(qw);
 
-        for (int i = 2; i <= 4; i++) {
+        int laneNum[]=new int[5];
+        int maxLane=0;
+        int minLane=999;
+        for (AwsScan scan:scanlist) {
+            laneNum[scan.getLane()]++;
+            if(scan.getLane()>maxLane)
+            {
+                maxLane=scan.getLane();
+            }
+            if(scan.getLane()<minLane)
+            {
+                minLane=scan.getLane();
+            }
+        }
+        if(minLane==999)
+        {
+            minLane=1;
+        }
+        if(maxLane==0)
+        {
+            maxLane=4;
+        }
+        for (int i = minLane; i <= maxLane; i++) {
+
             QueryWrapper<AwsPreCheckData> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("lane", i);
             if (orgCode!=null &&(!orgCode.equals("9999")) )
@@ -77,6 +106,7 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
                 vo1.setLimitAmt(preCheckData.getLimitAmt());
                 vo1.setWeight(preCheckData.getPreAmt());
                 vo1.setImg(preCheckData.getImg());
+                vo1.setLane(preCheckData.getLane());
 
                 Integer carType = preCheckData.getCarTypeId();
 

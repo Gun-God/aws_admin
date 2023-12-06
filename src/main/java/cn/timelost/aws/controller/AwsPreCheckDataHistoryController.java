@@ -210,7 +210,8 @@ public class AwsPreCheckDataHistoryController {
         try {
 //            String fileName ="excels"+File.separator+"test.xlsx";
 //            fileName=fileName;
-            File file=new File( "F:"+File.separator+"excels"+File.separator+fileName);
+//            File file=new File( "F:"+File.separator+"excels"+File.separator+fileName);
+            File file=new File( excelPath+fileName);
             if(!file.getParentFile().exists()){
                 file.getParentFile().mkdirs();
             }

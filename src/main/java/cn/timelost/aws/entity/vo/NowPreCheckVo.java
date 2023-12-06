@@ -22,5 +22,6 @@ public class NowPreCheckVo {
     public Integer type;
     public Integer color;
     public String img;
+    public Integer lane;
 
 }
