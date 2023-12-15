@@ -23,5 +23,6 @@ public interface AwsSystemSettingService extends IService<AwsSystemSetting> {
 
     void updateById(AwsSystemSettingForm form);
 
+    String getSystemName();
 
 }

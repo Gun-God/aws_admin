@@ -1,15 +1,19 @@
 package cn.timelost.aws.controller;
 
 
+import cn.timelost.aws.config.realm.UserRealm;
 import cn.timelost.aws.entity.AwsCheckData;
+import cn.timelost.aws.entity.AwsPreCheckData;
+import cn.timelost.aws.entity.AwsUser;
+import cn.timelost.aws.mapper.AwsCheckDataMapper;
 import cn.timelost.aws.service.AwsCheckDataService;
+import cn.timelost.aws.vo.ResultVo;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 
 /**
  * <p>
@@ -25,6 +29,8 @@ public class AwsCheckDataController {
 
     @Autowired
     AwsCheckDataService checkDataService;
+    @Autowired
+    AwsCheckDataMapper checkDataMapper;
 
 
 
@@ -40,6 +46,28 @@ public class AwsCheckDataController {
                                                    @RequestParam(value = "startT", required = false) String startT,
                                                    @RequestParam(value = "endT", required = false) String endT) {
         return checkDataService.findAll(page, size, carNo, lane, limitAmt, axisNum, startT, endT);
+    }
+
+
+    @RequestMapping(value = "/addCheck", method = RequestMethod.POST)
+    ////@RequiresRoles("admin")
+    public ResultVo add(@RequestBody AwsCheckData cks) {
+
+        System.out.println(cks);
+
+        return checkDataService.insert(cks);
+    }
+
+
+    @RequestMapping(value = "/getCheckList", method = RequestMethod.GET)
+    public ResultVo getPreCheckDataNewList(){
+        //String orgCode= UserRealm.ORGCODE;
+        List<AwsCheckData> dataList=null;
+
+
+            dataList=checkDataMapper.selectList(new QueryWrapper<AwsCheckData>().orderByDesc("check_time").last("limit 30"));
+
+        return ResultVo.success(dataList);
     }
 
 }

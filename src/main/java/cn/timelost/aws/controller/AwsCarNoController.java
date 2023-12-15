@@ -32,8 +32,11 @@ public class AwsCarNoController {
                                                @RequestParam(value = "size") Integer size,
                                                @RequestParam(value = "carNo", required = false) String carNo,
                                                @RequestParam(value = "startT", required = false) String startT,
-                                               @RequestParam(value = "endT", required = false) String endT) {
-        return noService.findAll(page, size, carNo, startT, endT);
+                                               @RequestParam(value = "endT", required = false) String endT,
+                                               @RequestParam(value = "orgCode", required = false) String orgCode,
+                                               @RequestParam(value = "color", required = false) Integer color
+                                               ) {
+        return noService.findAll(page, size, carNo, startT, endT,orgCode,color);
     }
 
 }

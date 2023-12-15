@@ -15,7 +15,7 @@ import com.github.pagehelper.PageInfo;
  */
 public interface AwsCarNoService extends IService<AwsCarNo> {
 
-    PageInfo<AwsCarNo> findAll(int pageNum, int pageSize, String carNo, String startT, String endT);
+    PageInfo<AwsCarNo> findAll(int pageNum, int pageSize, String carNo, String startT, String endT,String orgCode,Integer color);
 
 
 }

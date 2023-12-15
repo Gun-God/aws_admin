@@ -92,4 +92,21 @@ public class AwsNspOrgServiceImpl extends ServiceImpl<AwsNspOrgMapper, AwsNspOrg
         List<AwsNspOrg> list = orgMapper.selectList(qw);
         return ResultVo.success(list);
     }
+    @Override
+    public ResultVo selectAllperCheckOrg()
+    {
+        QueryWrapper<AwsNspOrg> qw = new QueryWrapper<>();
+        qw.lambda().eq(AwsNspOrg::getState, 1).eq(AwsNspOrg::getType, 0);
+        List<AwsNspOrg> list = orgMapper.selectList(qw);
+        return ResultVo.success(list);
+    }
+
+    @Override
+    public ResultVo selectAllCheckOrg()
+    {
+        QueryWrapper<AwsNspOrg> qw = new QueryWrapper<>();
+        qw.lambda().eq(AwsNspOrg::getState, 1).eq(AwsNspOrg::getType, 1);
+        List<AwsNspOrg> list = orgMapper.selectList(qw);
+        return ResultVo.success(list);
+    }
 }

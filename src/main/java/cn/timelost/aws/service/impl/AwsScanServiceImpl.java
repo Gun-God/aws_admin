@@ -81,4 +81,14 @@ public class AwsScanServiceImpl extends ServiceImpl<AwsScanMapper, AwsScan> impl
         List<AwsScan> list=scanMapper.selectList(qw);
         return ResultVo.success(list);
     }
+
+    @Override
+    public ResultVo selectAllPreviewDevice() {
+        //得到type为3和4的预览设备 （抓拍摄像机和球机）
+        Integer[] types={3,4};
+        QueryWrapper<AwsScan> qw=new QueryWrapper<>();
+        qw.lambda().in(AwsScan::getType,types).ne(AwsScan::getState,0);
+        List<AwsScan> list=scanMapper.selectList(qw);
+        return ResultVo.success(list);
+    }
 }

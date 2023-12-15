@@ -47,6 +47,10 @@ public class AwsSystemSettingController {
     }
 
 
-
+    @RequestMapping(value="/getSystemName",method = RequestMethod.GET)
+    public ResultVo getSysName() {
+        String name=systemSettingService.getSystemName();
+        return ResultVo.success(name);
+    }
 
 }

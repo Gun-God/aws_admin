@@ -1,5 +1,6 @@
 package cn.timelost.aws.service.impl;
 
+import cn.timelost.aws.entity.AwsScan;
 import cn.timelost.aws.entity.AwsSystemSetting;
 import cn.timelost.aws.entity.vo.AwsSystemSettingForm;
 import cn.timelost.aws.enums.ResultEnum;
@@ -8,6 +9,7 @@ import cn.timelost.aws.mapper.AwsSystemSettingMapper;
 import cn.timelost.aws.service.AwsSystemSettingService;
 import cn.timelost.aws.service.AwsUserLogService;
 import cn.timelost.aws.vo.ResultVo;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,5 +76,14 @@ public class AwsSystemSettingServiceImpl extends ServiceImpl<AwsSystemSettingMap
 
 
 
+    }
+
+    @Override
+    public String getSystemName()
+    {
+        QueryWrapper<AwsSystemSetting> qw=new QueryWrapper<>();
+        qw.lambda().eq(AwsSystemSetting::getSetting, "SYS_NAME");
+        AwsSystemSetting settings=systemSettingMapper.selectOne(qw);
+        return settings.getMsg();
     }
 }

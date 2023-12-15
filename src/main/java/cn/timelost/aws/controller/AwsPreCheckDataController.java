@@ -86,7 +86,16 @@ public class AwsPreCheckDataController {
     }
 
 
+    @RequestMapping(value = "/getListByCarNo", method = RequestMethod.GET)
+    public ResultVo getPreCheckDataByCarNoList(@RequestParam("carNo") String carNo){
+        String orgCode=UserRealm.ORGCODE;
+        List<AwsPreCheckData> dataList=null;
 
+
+            dataList=preCheckDataMapper.selectList(new QueryWrapper<AwsPreCheckData>().lambda().eq(AwsPreCheckData::getOrgCode,"027").like(AwsPreCheckData::getCarNo,carNo).orderByDesc(AwsPreCheckData::getCreateTime).last("limit 15"));
+
+        return ResultVo.success(dataList);
+    }
 
 
 

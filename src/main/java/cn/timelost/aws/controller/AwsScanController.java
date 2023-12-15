@@ -52,8 +52,15 @@ public class AwsScanController {
     }
 
     @RequestMapping(value = "/selectAllCamera", method = RequestMethod.GET)
-    ////@RequiresRoles("admin")
+    ////@RequiresRoles("admin")负责抓拍的
     public ResultVo selectAllCamera() {
         return scanService.selectAllCamera();
     }
+
+    @RequestMapping(value = "/selectAllPreviewDevice", method = RequestMethod.GET)
+    ////@RequiresRoles("admin")抓拍和预览设备
+    public ResultVo selectAllPreviewDevice() {
+        return scanService.selectAllPreviewDevice();
+    }
+
 }

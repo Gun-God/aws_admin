@@ -1,5 +1,6 @@
 package cn.timelost.aws.service.impl;
 
+import cn.timelost.aws.config.realm.UserRealm;
 import cn.timelost.aws.entity.AwsCarNo;
 import cn.timelost.aws.mapper.AwsCarNoMapper;
 import cn.timelost.aws.service.AwsCarNoService;
@@ -29,7 +30,8 @@ public class AwsCarNoServiceImpl extends ServiceImpl<AwsCarNoMapper, AwsCarNo> i
     AwsCarNoMapper carNoMapper;
 
     @Override
-    public PageInfo<AwsCarNo> findAll(int pageNum, int pageSize, String carNo, String startT, String endT) {
+    public PageInfo<AwsCarNo> findAll(int pageNum, int pageSize, String carNo, String startT, String endT,String orgCode,Integer color) {
+        int roleId= UserRealm.ROLEID;
         SimpleDateFormat sm = new SimpleDateFormat("yyyy-MM-dd");
         QueryWrapper<AwsCarNo> qw = new QueryWrapper<>();
         if (!("").equals(carNo) && carNo != null)
@@ -40,6 +42,20 @@ public class AwsCarNoServiceImpl extends ServiceImpl<AwsCarNoMapper, AwsCarNo> i
             } catch (ParseException e) {
                 e.printStackTrace();
             }
+        }
+        if(color != null && color!=-1)
+        {
+            qw.eq("color", color);
+        }
+
+
+        if(roleId==1 && orgCode!=null && !("".equals(orgCode)))
+        {
+            qw.eq("org_code",orgCode);
+        }
+        else{
+            String oCode= UserRealm.ORGCODE;
+            qw.eq("org_code",oCode);
         }
         qw.orderByDesc("create_time");
         PageHelper.startPage(pageNum, pageSize);

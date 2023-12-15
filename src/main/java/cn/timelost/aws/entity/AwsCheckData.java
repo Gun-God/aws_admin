@@ -117,5 +117,15 @@ public class AwsCheckData implements Serializable {
      */
     private String orgCode;
 
+    /**
+     * 精检站编号
+     * */
+    private String checkOrgCode;
+
+
+    /**
+     * 驾驶员姓名
+     * */
+    private String driverName;
 
 }

@@ -74,4 +74,17 @@ public class AwsNspOrgController {
     }
 
 
+    @RequestMapping(value = "/selectAllPerCheckOrg", method = RequestMethod.GET)
+    ////@RequiresRoles("admin")
+    public ResultVo selectAllPerCheckOrg() {
+        return orgService.selectAllperCheckOrg();
+    }
+
+    @RequestMapping(value = "/selectAllCheckOrg", method = RequestMethod.GET)
+    ////@RequiresRoles("admin")
+    public ResultVo selectAllCheckOrg() {
+        return orgService.selectAllCheckOrg();
+    }
+
+
 }

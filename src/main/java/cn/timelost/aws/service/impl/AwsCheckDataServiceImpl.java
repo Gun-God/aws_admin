@@ -2,8 +2,12 @@ package cn.timelost.aws.service.impl;
 
 import cn.timelost.aws.config.realm.UserRealm;
 import cn.timelost.aws.entity.AwsCheckData;
+import cn.timelost.aws.entity.AwsUser;
+import cn.timelost.aws.enums.ResultEnum;
 import cn.timelost.aws.mapper.AwsCheckDataMapper;
 import cn.timelost.aws.service.AwsCheckDataService;
+import cn.timelost.aws.utils.StringUtil;
+import cn.timelost.aws.vo.ResultVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -55,5 +60,22 @@ public class AwsCheckDataServiceImpl extends ServiceImpl<AwsCheckDataMapper, Aws
         PageHelper.startPage(pageNum, pageSize);
         List<AwsCheckData> historyList = checkDataMapper.selectList(qw);
         return new PageInfo<>(historyList);
+    }
+
+
+    @Override
+    public ResultVo insert(AwsCheckData cData) {
+        //这里是否要添加重复性判断
+        //生成精检流水号
+        String checkNo=StringUtil.genNo();
+        cData.setCode(checkNo);
+        //精检时间生成
+        cData.setCheckTime(new Date());
+        //
+
+       if(checkDataMapper.insert(cData)!=0)
+            return ResultVo.success();
+       else
+           return ResultVo.fail(ResultEnum.ADD_CHECKE_ERROR);
     }
 }

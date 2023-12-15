@@ -28,4 +28,8 @@ public interface AwsNspOrgService extends IService<AwsNspOrg> {
 
     ResultVo selectAllOrg();
 
+    ResultVo selectAllperCheckOrg();
+
+    ResultVo selectAllCheckOrg();
+
 }

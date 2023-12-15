@@ -1,6 +1,8 @@
 package cn.timelost.aws.service;
 
 import cn.timelost.aws.entity.AwsCheckData;
+import cn.timelost.aws.entity.AwsUser;
+import cn.timelost.aws.vo.ResultVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.github.pagehelper.PageInfo;
 
@@ -16,5 +18,5 @@ public interface AwsCheckDataService extends IService<AwsCheckData> {
 
     PageInfo<AwsCheckData> findAll(int pageNum, int pageSize, String carNo, Integer lane, Double limitAmt, Integer axisNum, String startT, String endT);
 
-
+    ResultVo insert(AwsCheckData cData);
 }

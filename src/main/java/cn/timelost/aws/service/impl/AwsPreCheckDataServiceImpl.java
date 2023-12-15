@@ -88,7 +88,8 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
         }
         for (int i = minLane; i <= maxLane; i++) {
 
-            QueryWrapper<AwsPreCheckData> queryWrapper = new QueryWrapper<>();
+//            QueryWrapper<AwsPreCheckData> queryWrapper = new QueryWrapper<>();
+            QueryWrapper<AwsPreCheckDataHistory> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("lane", i);
             if (orgCode!=null &&(!orgCode.equals("9999")) )
             {
@@ -97,18 +98,19 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
 
             queryWrapper.orderByDesc("create_time");
             queryWrapper.last("limit 1");
-            AwsPreCheckData preCheckData = awsPreCheckDataMapper.selectOne(queryWrapper);
-            if (preCheckData != null) {
+//            AwsPreCheckData preCheckData = awsPreCheckDataMapper.selectOne(queryWrapper);
+            AwsPreCheckDataHistory preCheckDataHistory=historyMapper.selectOne(queryWrapper);
+            if (preCheckDataHistory != null) {
                 NowPreCheckVo vo1 = new NowPreCheckVo();
-                vo1.setAxisNum(preCheckData.getAxisNum());
-                vo1.setCarNo(preCheckData.getCarNo());
-                vo1.setCreateTime(preCheckData.getCreateTime());
-                vo1.setLimitAmt(preCheckData.getLimitAmt());
-                vo1.setWeight(preCheckData.getPreAmt());
-                vo1.setImg(preCheckData.getImg());
-                vo1.setLane(preCheckData.getLane());
+                vo1.setAxisNum(preCheckDataHistory.getAxisNum());
+                vo1.setCarNo(preCheckDataHistory.getCarNo());
+                vo1.setCreateTime(preCheckDataHistory.getCreateTime());
+                vo1.setLimitAmt(preCheckDataHistory.getLimitAmt());
+                vo1.setWeight(preCheckDataHistory.getPreAmt());
+                vo1.setImg(preCheckDataHistory.getImg());
+                vo1.setLane(preCheckDataHistory.getLane());
 
-                Integer carType = preCheckData.getCarTypeId();
+                Integer carType = preCheckDataHistory.getCarTypeId();
 
                 if (carType != null) {
                     AwsCarType car = carTypeMapper.selectById(carType);
@@ -120,7 +122,7 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
                     }
                 }
                 vo1.setType(i);
-                vo1.setColor(preCheckData.getColor());
+                vo1.setColor(preCheckDataHistory.getColor());
                 nowPreCheckVoList.add(vo1);
             }
         }
@@ -135,6 +137,91 @@ public class AwsPreCheckDataServiceImpl extends ServiceImpl<AwsPreCheckDataMappe
 
         return ResultVo.success(nowPreCheckVoList);
     }
+
+
+//    @Override
+//    public ResultVo getNowPreCheckData() {
+//        String orgCode=UserRealm.ORGCODE;
+//        List<NowPreCheckVo> nowPreCheckVoList = new ArrayList<>();
+//        //查询当前org的前向scan摄像头
+//        QueryWrapper<AwsScan> qw=new QueryWrapper<>();
+//        qw.lambda().eq(AwsScan::getOrgCode,orgCode).eq(AwsScan::getDirection,1).eq(AwsScan::getType,3).ne(AwsScan::getState,0);
+//        List<AwsScan> scanlist=scanMapper.selectList(qw);
+//
+//        int laneNum[]=new int[5];
+//        int maxLane=0;
+//        int minLane=999;
+//        for (AwsScan scan:scanlist) {
+//            laneNum[scan.getLane()]++;
+//            if(scan.getLane()>maxLane)
+//            {
+//                maxLane=scan.getLane();
+//            }
+//            if(scan.getLane()<minLane)
+//            {
+//                minLane=scan.getLane();
+//            }
+//        }
+//        if(minLane==999)
+//        {
+//            minLane=1;
+//        }
+//        if(maxLane==0)
+//        {
+//            maxLane=4;
+//        }
+//        for (int i = minLane; i <= maxLane; i++) {
+//
+////            QueryWrapper<AwsPreCheckData> queryWrapper = new QueryWrapper<>();
+//            QueryWrapper<AwsPreCheckDataHistory> queryWrapper = new QueryWrapper<>();
+//            queryWrapper.eq("lane", i);
+//            if (orgCode!=null &&(!orgCode.equals("9999")) )
+//            {
+//                queryWrapper.eq("org_code",orgCode);
+//            }
+//
+//            queryWrapper.orderByDesc("create_time");
+//            queryWrapper.last("limit 1");
+////            AwsPreCheckData preCheckData = awsPreCheckDataMapper.selectOne(queryWrapper);
+//            AwsPreCheckDataHistory preCheckDataHistory=historyMapper.selectOne(queryWrapper);
+//            if (preCheckData != null) {
+//                NowPreCheckVo vo1 = new NowPreCheckVo();
+//                vo1.setAxisNum(preCheckData.getAxisNum());
+//                vo1.setCarNo(preCheckData.getCarNo());
+//                vo1.setCreateTime(preCheckData.getCreateTime());
+//                vo1.setLimitAmt(preCheckData.getLimitAmt());
+//                vo1.setWeight(preCheckData.getPreAmt());
+//                vo1.setImg(preCheckData.getImg());
+//                vo1.setLane(preCheckData.getLane());
+//
+//                Integer carType = preCheckData.getCarTypeId();
+//
+//                if (carType != null) {
+//                    AwsCarType car = carTypeMapper.selectById(carType);
+//                    if(car!=null) {
+//                        vo1.setLimitAmt(car.getLimitAmt());
+//                        vo1.setHeight(car.getHeight());
+//                        vo1.setLength(car.getLength());
+//                        vo1.setWidth(car.getWidth());
+//                    }
+//                }
+//                vo1.setType(i);
+//                vo1.setColor(preCheckData.getColor());
+//                nowPreCheckVoList.add(vo1);
+//            }
+//        }
+////        Date d=nowPreCheckVoList.get(0).getCreateTime();
+////        Date d2=nowPreCheckVoList.get(1).getCreateTime();
+////        if (d.before(d2))
+////            nowPreCheckVoList.remove(0);
+////        else {
+////            nowPreCheckVoList.remove(1);
+////        }
+//
+//
+//        return ResultVo.success(nowPreCheckVoList);
+//    }
+
 
     @Override
     public void transferPreData() {
