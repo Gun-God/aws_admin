@@ -2,7 +2,9 @@ package cn.timelost.aws.controller;
 
 
 import cn.timelost.aws.config.realm.UserRealm;
+import cn.timelost.aws.entity.AwsNspOrg;
 import cn.timelost.aws.entity.AwsPreCheckData;
+import cn.timelost.aws.mapper.AwsNspOrgMapper;
 import cn.timelost.aws.mapper.AwsPreCheckDataMapper;
 import cn.timelost.aws.service.AwsPreCheckDataService;
 import cn.timelost.aws.vo.ResultVo;
@@ -35,15 +37,33 @@ public class AwsPreCheckDataController {
     @Autowired
     AwsPreCheckDataService preCheckDataService;
 
+    @Autowired
+    AwsNspOrgMapper  nspOrgMapper;
+
     @RequestMapping(value = "/getList", method = RequestMethod.GET)
-    public ResultVo getPreCheckDataNewList(){
-        String orgCode=UserRealm.ORGCODE;
+    public ResultVo getPreCheckDataNewList(@RequestParam("orgCode") String orgCode){
+//        String orgCode=UserRealm.ORGCODE;
+        String oCode=UserRealm.ORGCODE;
+        int rId=UserRealm.ROLEID;
         List<AwsPreCheckData> dataList=null;
 
-        if(orgCode!=null && (!orgCode.equals("9999")) )
+//        if()
+        if(rId==3)//精检用户
         {
-            dataList=preCheckDataMapper.selectList(new QueryWrapper<AwsPreCheckData>().eq("org_code",orgCode).orderByDesc("create_time").last("limit 30"));
-        }else{
+//            查询当前精检下的所有orgcode
+            List<AwsNspOrg> orgs= nspOrgMapper.selectList(new QueryWrapper<AwsNspOrg>().eq("check_org",oCode).eq("type",0));
+            //将orgcodes作为查询条件
+            String[] orgArray=orgs.stream().map(AwsNspOrg::getCode).toArray(String[]::new);
+           //提取orgs里面的所有精检站orgCode
+            dataList=preCheckDataMapper.selectList(new QueryWrapper<AwsPreCheckData>().in("org_code",orgArray).orderByDesc("create_time").last("limit 30"));
+            return ResultVo.success(dataList);
+        }
+
+
+        if(oCode!=null && (!oCode.equals("9999")) )
+        {
+            dataList=preCheckDataMapper.selectList(new QueryWrapper<AwsPreCheckData>().eq("org_code",oCode).orderByDesc("create_time").last("limit 30"));
+        }else{//超级权限 暂时用不到
             dataList=preCheckDataMapper.selectList(new QueryWrapper<AwsPreCheckData>().orderByDesc("create_time").last("limit 30"));
         }
         return ResultVo.success(dataList);
@@ -90,9 +110,16 @@ public class AwsPreCheckDataController {
     public ResultVo getPreCheckDataByCarNoList(@RequestParam("carNo") String carNo){
         String orgCode=UserRealm.ORGCODE;
         List<AwsPreCheckData> dataList=null;
+        List<AwsNspOrg> orgs= nspOrgMapper.selectList(new QueryWrapper<AwsNspOrg>().eq("check_org",orgCode).eq("type",0));
+        //将orgcodes作为查询条件
 
+        if(orgs.size()==0)
+        {
+            return ResultVo.fail("暂无绑定");
+        }
 
-            dataList=preCheckDataMapper.selectList(new QueryWrapper<AwsPreCheckData>().lambda().eq(AwsPreCheckData::getOrgCode,"027").like(AwsPreCheckData::getCarNo,carNo).orderByDesc(AwsPreCheckData::getCreateTime).last("limit 15"));
+        String[] orgArray=orgs.stream().map(AwsNspOrg::getCode).toArray(String[]::new);
+        dataList=preCheckDataMapper.selectList(new QueryWrapper<AwsPreCheckData>().lambda().in(AwsPreCheckData::getOrgCode,orgArray).like(AwsPreCheckData::getCarNo,carNo).orderByDesc(AwsPreCheckData::getCreateTime).last("limit 15"));
 
         return ResultVo.success(dataList);
     }

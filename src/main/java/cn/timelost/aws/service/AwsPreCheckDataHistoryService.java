@@ -17,7 +17,7 @@ import java.util.List;
  */
 public interface AwsPreCheckDataHistoryService extends IService<AwsPreCheckDataHistory> {
 
-    List<AwsPreCheckDataHistory> findAll(int pageNum, int pageSize, String carNo, Integer[] lane, Double limitAmt, Integer[] axisNum, String startT, String endT, Double preAmtStart, Double preAmtEnd, String preNo, String orgCode, Integer color);
+    List<AwsPreCheckDataHistory> findAll(int pageNum, int pageSize, String carNo, Integer[] lane, Double limitAmt, Integer[] axisNum, String startT, String endT, Double preAmtStart, Double preAmtEnd, String preNo, String orgCode, Integer color,Boolean isOverAmt);
 
 
 }

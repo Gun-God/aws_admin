@@ -76,7 +76,6 @@ public class ZipUtil {
             zos.setLevel(compressionLevel);
             byte[] buf = new byte[1024 * 1024];
             for (String srcFile : srcFilesPath) {
-
                 zos.putNextEntry(new ZipEntry(srcFile.substring(srcFile.lastIndexOf(File.separator) + 1)));
                 int len;
                 BufferedInputStream in = new BufferedInputStream(new FileInputStream(srcFile));

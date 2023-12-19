@@ -109,4 +109,12 @@ public class AwsNspOrgServiceImpl extends ServiceImpl<AwsNspOrgMapper, AwsNspOrg
         List<AwsNspOrg> list = orgMapper.selectList(qw);
         return ResultVo.success(list);
     }
+
+    @Override
+    public ResultVo selectPerOrgByCheckOrg(String checkOrg)
+    {
+        //
+        List<AwsNspOrg> orgs= orgMapper.selectList(new QueryWrapper<AwsNspOrg>().eq("check_org",checkOrg).eq("state",1).orderByDesc("build_time").eq("type",0));
+        return ResultVo.success(orgs);
+    }
 }

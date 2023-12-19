@@ -86,5 +86,11 @@ public class AwsNspOrgController {
         return orgService.selectAllCheckOrg();
     }
 
+    @RequestMapping(value = "/selectPerOrgByCheckOrg", method = RequestMethod.GET)
+    ////@RequiresRoles("admin")
+    public ResultVo selectPerOrgByCheckOrg( @RequestParam("checkCode") String checkOrg) {
+        return orgService.selectPerOrgByCheckOrg(checkOrg);
+    }
+
 
 }

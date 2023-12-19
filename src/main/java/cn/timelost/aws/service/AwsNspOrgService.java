@@ -32,4 +32,6 @@ public interface AwsNspOrgService extends IService<AwsNspOrg> {
 
     ResultVo selectAllCheckOrg();
 
+    ResultVo selectPerOrgByCheckOrg(String checkOrg);
+
 }

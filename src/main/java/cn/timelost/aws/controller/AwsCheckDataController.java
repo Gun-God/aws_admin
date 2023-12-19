@@ -42,10 +42,24 @@ public class AwsCheckDataController {
                                                    @RequestParam(value = "amtS", required = false) Integer amtS,
                                                    @RequestParam(value = "amtE", required = false) Integer amtE,
                                                    @RequestParam(value = "limitAmt", required = false) Double limitAmt,
-                                                   @RequestParam(value = "axisNum", required = false) Integer axisNum,
+                                                   @RequestParam(value = "axisNum", required = false) String axisNum,
                                                    @RequestParam(value = "startT", required = false) String startT,
-                                                   @RequestParam(value = "endT", required = false) String endT) {
-        return checkDataService.findAll(page, size, carNo, lane, limitAmt, axisNum, startT, endT);
+                                                   @RequestParam(value = "endT", required = false) String endT,
+                                                   @RequestParam(value = "orgCode", required = false) String orgCode,
+                                                   @RequestParam(value = "isOverAmt", required = false) Boolean isOverAmt) {
+
+        Integer[]  axisNum_nums=null;
+        if(axisNum!=null && axisNum!="") {
+            String[] newAxisNum = axisNum.split(",");
+            axisNum_nums = new Integer[newAxisNum.length];
+            for (int i = 0; i < newAxisNum.length; i++) {
+                axisNum_nums[i] = Integer.parseInt(newAxisNum[i]);
+            }
+        }
+
+
+
+        return checkDataService.findAll(page, size, carNo, lane, limitAmt, axisNum_nums, startT, endT,orgCode,isOverAmt);
     }
 
 
@@ -61,11 +75,11 @@ public class AwsCheckDataController {
 
     @RequestMapping(value = "/getCheckList", method = RequestMethod.GET)
     public ResultVo getPreCheckDataNewList(){
-        //String orgCode= UserRealm.ORGCODE;
+        String orgCode= UserRealm.ORGCODE;
         List<AwsCheckData> dataList=null;
 
 
-            dataList=checkDataMapper.selectList(new QueryWrapper<AwsCheckData>().orderByDesc("check_time").last("limit 30"));
+            dataList=checkDataMapper.selectList(new QueryWrapper<AwsCheckData>().eq("check_org_code",orgCode).orderByDesc("check_time").last("limit 30"));
 
         return ResultVo.success(dataList);
     }

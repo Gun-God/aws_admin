@@ -72,14 +72,24 @@ public class ExcelPreCheckDataHistory implements Serializable {
     /**
      * 拍照时间
      */
-    @ExportExcelField(title = "拍照时间", order = 8)
     private Date createTime;
+
+    /**
+     * 拍照时间
+     */
+    @ExportExcelField(title = "拍照时间", order = 8)
+    private String createTimeShow;
+
+    /**
+     * 通过时间
+     */
+    private Date passTime;
 
     /**
      * 通过时间
      */
     @ExportExcelField(title = "通过时间", order = 9)
-    private Date passTime;
+    private String passTimeShow;
 
 
     @ExportExcelField(title = "前向图片", order = 10)
