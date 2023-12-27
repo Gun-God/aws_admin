@@ -2,8 +2,11 @@ package cn.timelost.aws.service.impl;
 
 import cn.timelost.aws.config.realm.UserRealm;
 import cn.timelost.aws.entity.AwsLed;
+import cn.timelost.aws.entity.AwsNspOrg;
 import cn.timelost.aws.entity.AwsPreCheckData;
+import cn.timelost.aws.entity.AwsPreCheckDataHistory;
 import cn.timelost.aws.mapper.AwsLedMapper;
+import cn.timelost.aws.mapper.AwsNspOrgMapper;
 import cn.timelost.aws.service.AwsLedService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -29,9 +32,11 @@ public class AwsLedServiceImpl extends ServiceImpl<AwsLedMapper, AwsLed> impleme
 
     @Autowired
     AwsLedMapper ledMapper;
+    @Autowired
+    AwsNspOrgMapper nspOrgMapper;
 
     @Override
-    public PageInfo<AwsLed> findAll(int pageNum, int pageSize, String carNo, String startT, String endT) {
+    public PageInfo<AwsLed> findAll(int pageNum, int pageSize, String carNo, String startT, String endT,String oCode) {
         String orgCode= UserRealm.ORGCODE;
 
         SimpleDateFormat sm = new SimpleDateFormat("yyyy-MM-dd");
@@ -45,10 +50,35 @@ public class AwsLedServiceImpl extends ServiceImpl<AwsLedMapper, AwsLed> impleme
                 e.printStackTrace();
             }
         }
-        if(orgCode!=null && (!orgCode.equals("9999")) )
-        {
-            qw.eq("org_code", orgCode);
+//        if(orgCode!=null && (!orgCode.equals("9999")) )
+//        {
+//            qw.eq("org_code", orgCode);
+//        }
+        int roleId= UserRealm.ROLEID;
+        if(oCode!=null && !("".equals(oCode))) {//选了
+            if (roleId == 1 || roleId==3) {
+                qw.eq("org_code", oCode);
+            }
+            else {
+                String oCodes = UserRealm.ORGCODE;
+                qw.eq("org_code", oCodes);
+            }
         }
+        else
+        {//针对默认
+            if(roleId==3)
+            {
+                String oCodes = UserRealm.ORGCODE;
+                AwsNspOrg orgs= nspOrgMapper.selectOne(new QueryWrapper<AwsNspOrg>().eq("check_org",oCodes).eq("type",0).eq("state",1).orderByDesc("build_time").last("limit 1"));
+                //将orgcodes作为查询条件
+                qw.eq("org_code", orgs.getCode());
+            }
+            else {
+                String oCodes = UserRealm.ORGCODE;
+                qw.eq("org_code", oCodes);
+            }
+        }
+
 
         qw.orderByDesc("create_time");
         PageHelper.startPage(pageNum, pageSize);

@@ -2,12 +2,15 @@ package cn.timelost.aws.controller;
 
 
 import cn.timelost.aws.config.realm.UserRealm;
+import cn.timelost.aws.entity.AwsDownloadLog;
 import cn.timelost.aws.entity.AwsNspOrg;
 import cn.timelost.aws.entity.AwsPreCheckDataHistory;
 import cn.timelost.aws.entity.AwsScan;
 import cn.timelost.aws.entity.vo.ExcelPreCheckDataHistory;
+import cn.timelost.aws.mapper.AwsDownloadLogMapper;
 import cn.timelost.aws.mapper.AwsNspOrgMapper;
 import cn.timelost.aws.mapper.AwsScanMapper;
+import cn.timelost.aws.service.AwsDownloadLogService;
 import cn.timelost.aws.service.AwsNspOrgService;
 import cn.timelost.aws.service.AwsPreCheckDataHistoryService;
 import cn.timelost.aws.utils.ExcelUtils;
@@ -52,6 +55,8 @@ public class AwsPreCheckDataHistoryController {
     AwsNspOrgMapper nspOrgMapper;
     @Autowired
     AwsScanMapper scanMapper;
+    @Autowired
+    AwsDownloadLogService downloadLogService;
 
     @Value("${car-img.path}")
     private String carImgPath;
@@ -335,14 +340,15 @@ public class AwsPreCheckDataHistoryController {
             imgPaths.add(p);
         }
 
-        //获取图片路径
-//        String parentPath=carImgPath+"test\\";
-//        File files=new File(parentPath);
-//        File[] filelist=files.listFiles();
-//        for (File file : filelist) {
-//            imgPaths.add(file.getName());
-//            System.out.println(file.getName());
-//        }
+//        获取图片路径
+      /*  String parentPath=carImgPath+"test\\";
+        File files=new File(parentPath);
+        File[] filelist=files.listFiles();
+        for (File file : filelist) {
+            imgPaths.add(parentPath+file.getName());
+            System.out.println(file.getName());
+        }*/
+
 
 
         String fileName="fail";
@@ -367,11 +373,34 @@ public class AwsPreCheckDataHistoryController {
             fileName="allDate_"+new Date().getTime()+".zip";
         }
 
+        //如果无误就创建下载任务
+        AwsDownloadLog adll=new AwsDownloadLog();
+        adll.setContent("下载预检历史表图片");
+        adll.setFileName(fileName);
+        adll.setUrl(carImgExportPath+fileName);
+        AwsDownloadLog new_adll=downloadLogService.createDownloadLog(adll);
+
+        if(new_adll==null)
+        {
+            return ResultVo.fail("下载任务创建失败");
+        }
+
+        //调用service下载
+
+        //System.out.println(new_adll.getId());
 //        ZipUtil.toZip(imgPaths, "F:\\export_img\\"+fileName,0);
+        //用线程运行该任务
+        String finalFileName = fileName;
+        Thread thread=new Thread(new Runnable(){
+           @Override
+           public void run() {
+               ZipUtil.toZip(imgPaths, carImgExportPath+ finalFileName,1,new_adll);
+           }
+        });
+        thread.start();
 
-    //    ZipUtil.toZip(imgPaths, carImgExportPath+fileName,0);
 
-        return  ResultVo.success(fileName);
+        return  ResultVo.success(new_adll.getId());
 
 //        pageData.
 

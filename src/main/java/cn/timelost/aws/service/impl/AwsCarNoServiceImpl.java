@@ -2,7 +2,10 @@ package cn.timelost.aws.service.impl;
 
 import cn.timelost.aws.config.realm.UserRealm;
 import cn.timelost.aws.entity.AwsCarNo;
+import cn.timelost.aws.entity.AwsNspOrg;
+import cn.timelost.aws.entity.AwsPreCheckDataHistory;
 import cn.timelost.aws.mapper.AwsCarNoMapper;
+import cn.timelost.aws.mapper.AwsNspOrgMapper;
 import cn.timelost.aws.service.AwsCarNoService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -28,6 +31,8 @@ public class AwsCarNoServiceImpl extends ServiceImpl<AwsCarNoMapper, AwsCarNo> i
 
     @Autowired
     AwsCarNoMapper carNoMapper;
+    @Autowired
+    AwsNspOrgMapper nspOrgMapper;
 
     @Override
     public PageInfo<AwsCarNo> findAll(int pageNum, int pageSize, String carNo, String startT, String endT,String orgCode,Integer color) {
@@ -49,14 +54,41 @@ public class AwsCarNoServiceImpl extends ServiceImpl<AwsCarNoMapper, AwsCarNo> i
         }
 
 
-        if(roleId==1 && orgCode!=null && !("".equals(orgCode)))
-        {
-            qw.eq("org_code",orgCode);
+//        if(roleId==1 && orgCode!=null && !("".equals(orgCode)))
+//        {
+//            qw.eq("org_code",orgCode);
+//        }
+//        else{
+//            String oCode= UserRealm.ORGCODE;
+//            qw.eq("org_code",oCode);
+//        }
+
+        if(orgCode!=null && !("".equals(orgCode))) {//选了
+            if (roleId == 1 || roleId==3) {
+                qw.eq("org_code", orgCode);
+            }
+            else {
+                String oCode = UserRealm.ORGCODE;
+                qw.eq("org_code", oCode);
+            }
         }
-        else{
-            String oCode= UserRealm.ORGCODE;
-            qw.eq("org_code",oCode);
+        else
+        {//针对默认
+            if(roleId==3)
+            {
+                String oCode = UserRealm.ORGCODE;
+                AwsNspOrg orgs= nspOrgMapper.selectOne(new QueryWrapper<AwsNspOrg>().eq("check_org",oCode).eq("type",0).eq("state",1).orderByDesc("build_time").last("limit 1"));
+                //将orgcodes作为查询条件
+                qw.eq("org_code", orgs.getCode());
+            }
+            else {
+                String oCode = UserRealm.ORGCODE;
+                qw.eq("org_code", oCode);
+            }
         }
+
+
+
         qw.orderByDesc("create_time");
         PageHelper.startPage(pageNum, pageSize);
         List<AwsCarNo> awsCarNos = carNoMapper.selectList(qw);

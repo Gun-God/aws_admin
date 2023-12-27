@@ -176,7 +176,7 @@ public class AwsPreCheckDataHistoryServiceImpl extends ServiceImpl<AwsPreCheckDa
             if(roleId==3)
             {
                 String oCode = UserRealm.ORGCODE;
-                AwsNspOrg orgs= nspOrgMapper.selectOne(new QueryWrapper<AwsNspOrg>().eq("check_org",oCode).eq("type",0).orderByDesc("build_time").last("limit 1"));
+                AwsNspOrg orgs= nspOrgMapper.selectOne(new QueryWrapper<AwsNspOrg>().eq("check_org",oCode).eq("type",0).eq("state",1).orderByDesc("build_time").last("limit 1"));
                 //将orgcodes作为查询条件
                 qw.eq(AwsPreCheckDataHistory::getOrgCode, orgs.getCode());
             }

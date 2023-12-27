@@ -1,5 +1,6 @@
 package cn.timelost.aws.service.impl;
 
+import cn.timelost.aws.config.realm.UserRealm;
 import cn.timelost.aws.entity.AwsScan;
 import cn.timelost.aws.enums.ResultEnum;
 import cn.timelost.aws.mapper.AwsScanMapper;
@@ -55,6 +56,9 @@ public class AwsScanServiceImpl extends ServiceImpl<AwsScanMapper, AwsScan> impl
         int c = scanMapper.selectCount(new QueryWrapper<AwsScan>().eq("code", scan.getCode()));
         if (c != 0)
             return ResultVo.fail("设备编号已存在");
+
+        String operName=UserRealm.USERNAME;
+        scan.setOperName(operName);
         scan.setId(null);
         scan.setState(1);
         scan.setCreateTime(new Date());
@@ -68,8 +72,14 @@ public class AwsScanServiceImpl extends ServiceImpl<AwsScanMapper, AwsScan> impl
     public ResultVo updateScanById(AwsScan scan) {
         if (scan == null)
             return ResultVo.fail("设备不存在");
-        if (scanMapper.updateById(scan) == 0)
+//        if (scanMapper.updateById(scan) == 0)
+//            return ResultVo.fail(ResultEnum.ERROR);
+
+        if(0==scanMapper.update(scan,new QueryWrapper<AwsScan>().eq("code",scan.getCode())))
+        {
             return ResultVo.fail(ResultEnum.ERROR);
+        }
+
         logService.InsertUserLog("修改设备:"+scan.getCode(),1);
         return ResultVo.success();
     }

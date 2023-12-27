@@ -1,9 +1,15 @@
 package cn.timelost.aws.utils;
 
+import cn.timelost.aws.entity.AwsDownloadLog;
+import cn.timelost.aws.mapper.AwsDownloadLogMapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.PostConstruct;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -14,7 +20,18 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 @Slf4j
+@Component
 public class ZipUtil {
+
+
+    @Autowired
+    private AwsDownloadLogMapper awsDownloadLogMapper;
+    private static ZipUtil zipUtil;
+    @PostConstruct
+    public void init() {
+        zipUtil = this;
+        zipUtil.awsDownloadLogMapper= this.awsDownloadLogMapper;
+    }
 
 
     /**
@@ -68,24 +85,34 @@ public class ZipUtil {
      * @param compressionLevel   文件压缩级别，0-9 整型数字越大，压缩越严重
      * @return  String   将压缩文件保存位置返回
      */
-    public static String toZip(List<String> srcFilesPath , String savePath, int compressionLevel ){
+    public static String toZip(List<String> srcFilesPath , String savePath, int compressionLevel, AwsDownloadLog adll){
         long start = System.currentTimeMillis();
         ZipOutputStream zos = null ;
         try {
             zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(new File(savePath))));
             zos.setLevel(compressionLevel);
             byte[] buf = new byte[1024 * 1024];
+            int k=0;
+
             for (String srcFile : srcFilesPath) {
+                k++;
                 zos.putNextEntry(new ZipEntry(srcFile.substring(srcFile.lastIndexOf(File.separator) + 1)));
                 int len;
                 BufferedInputStream in = new BufferedInputStream(new FileInputStream(srcFile));
                 while ((len = in.read(buf)) != -1){
                     zos.write(buf, 0, len);
                 }
+                adll.setPercent(Double.valueOf((double)k/(double)srcFilesPath.size()));
+                zipUtil.awsDownloadLogMapper.update(adll, new QueryWrapper<AwsDownloadLog>().eq("id",adll.getId()));
+                System.out.println("压缩进度："+k+"/"+srcFilesPath.size());
                 zos.closeEntry();
                 in.close();
             }
             long end = System.currentTimeMillis();
+
+            adll.setState(1);
+            zipUtil.awsDownloadLogMapper.update(adll, new QueryWrapper<AwsDownloadLog>().eq("id",adll.getId()));
+
             log.info("压缩完成，耗时：{}", end - start);
         } catch (Exception e) {
             log.error("压缩文件时发生异常，e:", e);
@@ -325,7 +352,7 @@ public class ZipUtil {
         fileList.add(filePath3);
         fileList.add(filePath4);
 
-        toZip(fileList,"F:\\pic\\test.zip",0);
+        //toZip(fileList,"F:\\pic\\test.zip",0);
     }
 
 }

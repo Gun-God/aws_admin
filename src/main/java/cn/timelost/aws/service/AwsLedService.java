@@ -15,6 +15,6 @@ import com.github.pagehelper.PageInfo;
  */
 public interface AwsLedService extends IService<AwsLed> {
 
-    PageInfo<AwsLed> findAll(int pageNum, int pageSize, String carNo, String startT, String endT);
+    PageInfo<AwsLed> findAll(int pageNum, int pageSize, String carNo, String startT, String endT,String oCode);
 
 }

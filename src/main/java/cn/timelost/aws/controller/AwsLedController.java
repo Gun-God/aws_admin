@@ -32,8 +32,9 @@ public class AwsLedController {
                                        @RequestParam(value = "size") Integer size,
                                        @RequestParam(value = "carNo", required = false) String carNo,
                                        @RequestParam(value = "startT", required = false) String startT,
-                                       @RequestParam(value = "endT", required = false) String endT) {
-        return ledService.findAll(page, size, carNo, startT, endT);
+                                       @RequestParam(value = "endT", required = false) String endT,
+    @RequestParam(value = "orgCode", required = false) String orgCode) {
+        return ledService.findAll(page, size, carNo, startT, endT,orgCode);
     }
 
 }

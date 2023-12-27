@@ -147,6 +147,8 @@ public class ExcelUtils {
                     widthList.set(j, Math.min(valueLength, maxWidthList.get(j)));
                 }
             }
+            System.out.println("Excel进度"+(i+1)+"/"+ dataList.size());
+
         }
 
         if (AOTU_CLOUMN_WIDTH){

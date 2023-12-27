@@ -36,8 +36,9 @@ public enum ResultEnum {
     PARAM_ERROR(501, "参数错误"),
     JB_ERROR(-1, "员工工号不存在"),
     ADD_ERROR(-2, "账号已存在"),
-    ADD_CHECKE_ERROR(-3,"精检添加错误");
-
+    ORG_ISNOT_EXIST(-4, "检测站信息不完整"),
+    ADD_CHECKE_ERROR(-3,"精检添加错误"),
+    NO_NEED_DOWNLOAD_ERROR(-5,"无最新数据");
     private final Integer code;
     private final String message;
 

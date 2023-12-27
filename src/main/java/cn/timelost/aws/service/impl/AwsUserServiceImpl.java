@@ -1,9 +1,11 @@
 package cn.timelost.aws.service.impl;
 
 import cn.timelost.aws.config.utils.JWTUtils;
+import cn.timelost.aws.entity.AwsNspOrg;
 import cn.timelost.aws.entity.AwsUser;
 import cn.timelost.aws.entity.vo.AwsUserForm;
 import cn.timelost.aws.enums.ResultEnum;
+import cn.timelost.aws.mapper.AwsNspOrgMapper;
 import cn.timelost.aws.mapper.AwsRoleMapper;
 import cn.timelost.aws.mapper.AwsUserMapper;
 import cn.timelost.aws.service.AwsUserLogService;
@@ -39,6 +41,8 @@ public class AwsUserServiceImpl extends ServiceImpl<AwsUserMapper, AwsUser> impl
     AwsRoleMapper roleMapper;
     @Autowired
     AwsUserLogService logService;
+    @Autowired
+    AwsNspOrgMapper nspOrgMapper;
 
 
     @Override
@@ -97,8 +101,30 @@ public class AwsUserServiceImpl extends ServiceImpl<AwsUserMapper, AwsUser> impl
         BeanUtils.copyProperties(us, user);
         user.setSalt(salt);
         user.setPassword(password);
+
+        //设置roleId
+//        查询他的检测站是精检还是预检
+        //nspOrgMapper
+        AwsNspOrg ano= nspOrgMapper.selectOne(new QueryWrapper<AwsNspOrg>().lambda().eq(AwsNspOrg::getCode,user.getOrgCode()).last("limit 1"));
+        if(ano == null)
+        {
+            return ResultVo.fail(ResultEnum.ORG_ISNOT_EXIST);
+        }
+
+        if(ano.getType() ==0)//预检站普通用户
+        user.setRoleId(2);
+        else if(ano.getType() ==1)
+        user.setRoleId(3);
+        else
+            user.setRoleId(-1);
+
+        //性别不能为空 更新的时候会出错的
+        if(user.getSex()== null)
+            user.setSex(-1);
+
         if (userMapper.insert(user) == 0)
             return ResultVo.fail(ResultEnum.ADD_ERROR);
+
         logService.InsertUserLog("新增用户"+code,1);
 
         return ResultVo.success();
@@ -120,6 +146,19 @@ public class AwsUserServiceImpl extends ServiceImpl<AwsUserMapper, AwsUser> impl
 //            user.setPassword(password);
 //            user.setSalt(salt);
 //        }
+        AwsNspOrg ano= nspOrgMapper.selectOne(new QueryWrapper<AwsNspOrg>().lambda().eq(AwsNspOrg::getCode,awsUser.getOrgCode()).last("limit 1"));
+        if(ano == null)
+        {
+            return ResultVo.fail(ResultEnum.ORG_ISNOT_EXIST);
+        }
+
+        if(ano.getType() ==0)//预检站普通用户
+            user.setRoleId(2);
+        else if(ano.getType() ==1)
+            user.setRoleId(3);
+        else
+            user.setRoleId(-1);
+
         awsUser.setUpdateTime(new Date());
         if ( userMapper.updateById(awsUser) == 0)
             return ResultVo.fail(ResultEnum.ERROR);

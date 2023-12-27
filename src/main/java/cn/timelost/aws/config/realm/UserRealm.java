@@ -31,6 +31,7 @@ public class UserRealm extends AuthorizingRealm {
     public static String USERNAME;
     public static String ORGCODE=null;
     public static int ROLEID=-1;
+//    public static
 
     @Resource
     AwsUserService userService;
