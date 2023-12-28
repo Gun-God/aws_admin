@@ -1,15 +1,21 @@
 package cn.timelost.aws.utils;
 
+import cn.timelost.aws.entity.AwsDownloadLog;
 import cn.timelost.aws.entity.vo.ExportExcelField;
 import cn.timelost.aws.entity.vo.ExportExcelSheet;
+import cn.timelost.aws.mapper.AwsDownloadLogMapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.Entry;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,6 +28,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@Component
 public class ExcelUtils {
     // 字体
     private static final String FONT_STYLE_CALIBRI = "Calibri";
@@ -39,13 +46,23 @@ public class ExcelUtils {
     // 自动调整列宽
     private static final boolean AOTU_CLOUMN_WIDTH = true;
 
+    @Autowired
+    private AwsDownloadLogMapper awsDownloadLogMapper;
+    private static ExcelUtils excelUtils;
+    @PostConstruct
+    public void init() {
+        excelUtils=this;
+        excelUtils.awsDownloadLogMapper=this.awsDownloadLogMapper;
+    }
+
+
     /**
      * 通过数据列表和类对象，获取一个简单表头的XSSFworkbook对象(单sheet，且无递归情况)
      * @param dataList 数据列表
      * @param annotatedClass 有ExportExcelSheet注解
      * @return XSSFWorkbook对象
      */
-    public static XSSFWorkbook getSimpleXSSFWorkbook(List dataList, Class annotatedClass) {
+    public static XSSFWorkbook getSimpleXSSFWorkbook(List dataList, Class annotatedClass, AwsDownloadLog adll) {
         // 1. 一些基础操作
         Map cglab=new HashMap();
         //创建一个Excel
@@ -147,6 +164,10 @@ public class ExcelUtils {
                     widthList.set(j, Math.min(valueLength, maxWidthList.get(j)));
                 }
             }
+
+            adll.setPercent(Double.valueOf((double)(i+1)/(double)dataList.size()));
+            excelUtils.awsDownloadLogMapper.update(adll, new QueryWrapper<AwsDownloadLog>().eq("id",adll.getId()));
+
             System.out.println("Excel进度"+(i+1)+"/"+ dataList.size());
 
         }

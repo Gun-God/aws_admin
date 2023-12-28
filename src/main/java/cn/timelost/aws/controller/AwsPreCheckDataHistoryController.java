@@ -7,6 +7,7 @@ import cn.timelost.aws.entity.AwsNspOrg;
 import cn.timelost.aws.entity.AwsPreCheckDataHistory;
 import cn.timelost.aws.entity.AwsScan;
 import cn.timelost.aws.entity.vo.ExcelPreCheckDataHistory;
+import cn.timelost.aws.enums.ResultEnum;
 import cn.timelost.aws.mapper.AwsDownloadLogMapper;
 import cn.timelost.aws.mapper.AwsNspOrgMapper;
 import cn.timelost.aws.mapper.AwsScanMapper;
@@ -160,93 +161,27 @@ public class AwsPreCheckDataHistoryController {
         }
         List<AwsPreCheckDataHistory> apdhList=preCheckDataHistoryService.findAll(page, size, carNo, lane_nums, limitAmt, axisNum_nums, startT, endT,preAmtStart, preAmtEnd, preNo,orgCode,color,isOverAmt);
 
-        //得到所有检测站
-        QueryWrapper<AwsNspOrg> qw = new QueryWrapper<>();
-        qw.lambda().eq(AwsNspOrg::getState, 1);
-        List<AwsNspOrg> anoList =  nspOrgMapper.selectList(qw);
-        //得到车道映射
-        List<AwsScan> asl=null;
-        String ocode="";
-        //查询orgcode下所有
-        if(orgCode!=null && orgCode!="") {
-            ocode = orgCode;
+        //无数据
+        if(apdhList==null || apdhList.size()==0){
+            return ResultVo.fail(ResultEnum.PRECHECK_QUERY_ERROR);//报错-6
         }
-        else{
-            ocode = UserRealm.ORGCODE;
-        }
-        asl=scanMapper.selectList(new QueryWrapper<AwsScan>().lambda().eq(AwsScan::getOrgCode, ocode).eq(AwsScan::getType,3).eq(AwsScan::getDirection,1));
-        HashMap<Integer,Integer> laneMap=new HashMap<>();
-        if(asl!=null)
-        {
-            for(AwsScan as:asl)
-            {
-                if(laneMap.get(as.getShowLane())==null)
-                {
-                    laneMap.put(as.getLane(),as.getShowLane());
-                }
-            }
-        }
-        //前提是查询的数据小于7w条
-        //导出excel
-        List<ExcelPreCheckDataHistory> epdhList=new LinkedList<ExcelPreCheckDataHistory>();
-        String[] colorArray={"蓝色","黄色","其他"};
 
-        for(AwsPreCheckDataHistory apdh:apdhList)
-        {
-            ExcelPreCheckDataHistory epdh=new ExcelPreCheckDataHistory();
-
-            BeanUtils.copyProperties(apdh,epdh);
-            for(AwsNspOrg ano:anoList)
-            {
-                if(epdh.getOrgCode().equals(ano.getCode()))
-                {
-                    epdh.setOrgCode(ano.getName());
-                }
-            }
-            //赋值时间
-            SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            epdh.setPassTimeShow(sdf.format(epdh.getPassTime()) );
-            epdh.setCreateTimeShow(sdf.format(epdh.getCreateTime()));
-//
-
-            if(epdh.getColor()!=null){
-            if(epdh.getColor()<3 && epdh.getColor()>0)
-                epdh.setRealColor(colorArray[(int)epdh.getColor()]);
-            else
-                epdh.setRealColor("其他");
-            }
-
-            if(epdh.getLane()!=null)
-            {
-                if(asl!=null)
-                {
-                   Integer laneInfo=epdh.getLane();
-                   epdh.setLane(laneMap.get(laneInfo));
-                }
-            }
-
-            epdhList.add(epdh);
-        }
-        //利用工具类
-        XSSFWorkbook wb= ExcelUtils.getSimpleXSSFWorkbook(epdhList,ExcelPreCheckDataHistory.class);
-
-        // 7. 输出文件
-        // 7.1 把excel文件写到磁盘上
+        //新建文件名
         String fileName="fail";
         String new_startT="fail";
         String new_endT="fail";
-       if(startT!=null && endT!=null) {
-           try {
-               SimpleDateFormat sm = new SimpleDateFormat("yyyy-MM-dd");
-               Date d1 = sm.parse(startT);
-               Date d2 = sm.parse(endT);
-               new_startT =sm.format(d1);
-               new_endT=sm.format(d2);
+        if(startT!=null && endT!=null) {
+            try {
+                SimpleDateFormat sm = new SimpleDateFormat("yyyy-MM-dd");
+                Date d1 = sm.parse(startT);
+                Date d2 = sm.parse(endT);
+                new_startT =sm.format(d1);
+                new_endT=sm.format(d2);
 //               new_endT = d2.toString();
-           } catch (Exception e) {
+            } catch (Exception e) {
 
-           }
-       }
+            }
+        }
         if(startT!=null && endT!=null)
         {
             fileName=new_startT+"_"+new_endT+"_"+(new Date().getTime())+".xlsx";
@@ -254,35 +189,34 @@ public class AwsPreCheckDataHistoryController {
         else{
             fileName="allDate_"+new Date().getTime()+".xlsx";
         }
-        int flag=0;
-        try {
-//            String fileName ="excels"+File.separator+"test.xlsx";
-//            fileName=fileName;
-//            File file=new File( "F:"+File.separator+"excels"+File.separator+fileName);
-            File file=new File( excelPath+fileName);
-            if(!file.getParentFile().exists()){
-                file.getParentFile().mkdirs();
-            }
-            if(!file.exists()){
-                file.createNewFile();
-            }
-            file.setWritable(true);
-            FileOutputStream outputStream = new FileOutputStream(file);
-            wb.write(outputStream); // 把excel写到输出流中
-            outputStream.close(); // 关闭流
-            wb.close();
-            return ResultVo.success(fileName);
-        }
-        catch (Exception e)
+
+        //创建下载任务
+        AwsDownloadLog adll=new AwsDownloadLog();
+        adll.setContent("下载预检历史表表格");
+        adll.setType(0);
+        adll.setFileName(fileName);
+        adll.setUrl(excelPath+fileName);
+        AwsDownloadLog new_adll=downloadLogService.createDownloadLog(adll);
+
+        if(new_adll==null)
         {
-            e.printStackTrace();
+            return ResultVo.fail(ResultEnum.ERROR);
         }
 
-       return  ResultVo.fail("error when export!");
+        String finalFileName = fileName;
+        Thread thread=new Thread(new Runnable(){
+            @Override
+            public void run() {
+                preCheckDataHistoryService.exportExcel(apdhList,new_adll,orgCode,excelPath+ finalFileName);
+            }
+        });
+        thread.start();
 
+        //调用service处理导出功能
+
+
+       return  ResultVo.success(new_adll.getId());
 //        pageData.
-
-
     }
 
 
@@ -331,6 +265,12 @@ public class AwsPreCheckDataHistoryController {
         }
         List<AwsPreCheckDataHistory> apdhList=preCheckDataHistoryService.findAll(page, size, carNo, lane_nums, limitAmt, axisNum_nums, startT, endT,preAmtStart, preAmtEnd, preNo,orgCode,color,isOverAmt);
 
+        if(apdhList==null || apdhList.size()==0)
+        {
+            return ResultVo.fail(ResultEnum.PRECHECK_QUERY_ERROR);
+        }
+
+
         List<String> imgPaths=new ArrayList<>();
         //得到图片路径
         for (AwsPreCheckDataHistory apdh : apdhList)
@@ -377,12 +317,13 @@ public class AwsPreCheckDataHistoryController {
         AwsDownloadLog adll=new AwsDownloadLog();
         adll.setContent("下载预检历史表图片");
         adll.setFileName(fileName);
+        adll.setType(1);
         adll.setUrl(carImgExportPath+fileName);
         AwsDownloadLog new_adll=downloadLogService.createDownloadLog(adll);
 
         if(new_adll==null)
         {
-            return ResultVo.fail("下载任务创建失败");
+            return ResultVo.fail(ResultEnum.ERROR);
         }
 
         //调用service下载

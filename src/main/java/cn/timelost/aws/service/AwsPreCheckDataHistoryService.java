@@ -1,5 +1,6 @@
 package cn.timelost.aws.service;
 
+import cn.timelost.aws.entity.AwsDownloadLog;
 import cn.timelost.aws.entity.AwsPreCheckData;
 import cn.timelost.aws.entity.AwsPreCheckDataHistory;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -18,6 +19,10 @@ import java.util.List;
 public interface AwsPreCheckDataHistoryService extends IService<AwsPreCheckDataHistory> {
 
     List<AwsPreCheckDataHistory> findAll(int pageNum, int pageSize, String carNo, Integer[] lane, Double limitAmt, Integer[] axisNum, String startT, String endT, Double preAmtStart, Double preAmtEnd, String preNo, String orgCode, Integer color,Boolean isOverAmt);
+
+
+
+    void exportExcel(List<AwsPreCheckDataHistory> apdhs, AwsDownloadLog adll,String orgCode,String url);
 
 
 }

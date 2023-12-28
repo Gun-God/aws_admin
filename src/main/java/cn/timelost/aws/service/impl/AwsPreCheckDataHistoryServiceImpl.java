@@ -1,26 +1,28 @@
 package cn.timelost.aws.service.impl;
 
 import cn.timelost.aws.config.realm.UserRealm;
-import cn.timelost.aws.entity.AwsNspOrg;
-import cn.timelost.aws.entity.AwsPreCheckData;
-import cn.timelost.aws.entity.AwsPreCheckDataHistory;
-import cn.timelost.aws.entity.AwsScan;
-import cn.timelost.aws.mapper.AwsNspOrgMapper;
-import cn.timelost.aws.mapper.AwsPreCheckDataHistoryMapper;
-import cn.timelost.aws.mapper.AwsPreCheckDataMapper;
-import cn.timelost.aws.mapper.AwsScanMapper;
+import cn.timelost.aws.entity.*;
+import cn.timelost.aws.entity.vo.ExcelPreCheckDataHistory;
+import cn.timelost.aws.mapper.*;
 import cn.timelost.aws.service.AwsPreCheckDataHistoryService;
+import cn.timelost.aws.utils.ExcelUtils;
+import cn.timelost.aws.vo.ResultVo;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -44,6 +46,8 @@ public class AwsPreCheckDataHistoryServiceImpl extends ServiceImpl<AwsPreCheckDa
     AwsNspOrgMapper  nspOrgMapper;
     @Autowired
     AwsScanMapper scanMapper;
+    @Autowired
+    AwsDownloadLogMapper downloadLogMapper;
 
     @Override
     public List<AwsPreCheckDataHistory> findAll(int pageNum, int pageSize, String carNo, Integer[] lane, Double limitAmt, Integer[] axisNum, String startT, String endT,Double preAmtStart,Double preAmtEnd, String preNo,String orgCode,Integer color,Boolean isOverAmt) {
@@ -228,4 +232,107 @@ public class AwsPreCheckDataHistoryServiceImpl extends ServiceImpl<AwsPreCheckDa
 //        return new PageInfo<>(historyList);
 
     }
+
+    public void exportExcel(List<AwsPreCheckDataHistory> apdhList, AwsDownloadLog adll,String orgCode,String url){
+
+        //得到所有检测站
+        QueryWrapper<AwsNspOrg> qw = new QueryWrapper<>();
+        qw.lambda().eq(AwsNspOrg::getState, 1);
+        List<AwsNspOrg> anoList =  nspOrgMapper.selectList(qw);
+        //得到车道映射
+        List<AwsScan> asl=null;
+        String ocode="";
+        //查询orgcode下所有
+        if(orgCode!=null && orgCode!="") {
+            ocode = orgCode;
+        }
+        else{
+            ocode = UserRealm.ORGCODE;
+        }
+        asl=scanMapper.selectList(new QueryWrapper<AwsScan>().lambda().eq(AwsScan::getOrgCode, ocode).eq(AwsScan::getType,3).eq(AwsScan::getDirection,1));
+        HashMap<Integer,Integer> laneMap=new HashMap<>();
+        if(asl!=null)
+        {
+            for(AwsScan as:asl)
+            {
+                if(laneMap.get(as.getShowLane())==null)
+                {
+                    laneMap.put(as.getLane(),as.getShowLane());
+                }
+            }
+        }
+        //前提是查询的数据小于7w条
+        //导出excel
+        List<ExcelPreCheckDataHistory> epdhList=new LinkedList<ExcelPreCheckDataHistory>();
+        String[] colorArray={"蓝色","黄色","其他"};
+
+        for(AwsPreCheckDataHistory apdh:apdhList)
+        {
+            ExcelPreCheckDataHistory epdh=new ExcelPreCheckDataHistory();
+
+            BeanUtils.copyProperties(apdh,epdh);
+            for(AwsNspOrg ano:anoList)
+            {
+                if(epdh.getOrgCode().equals(ano.getCode()))
+                {
+                    epdh.setOrgCode(ano.getName());
+                }
+            }
+            //赋值时间
+            SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            epdh.setPassTimeShow(sdf.format(epdh.getPassTime()) );
+            epdh.setCreateTimeShow(sdf.format(epdh.getCreateTime()));
+//
+
+            if(epdh.getColor()!=null){
+                if(epdh.getColor()<3 && epdh.getColor()>0)
+                    epdh.setRealColor(colorArray[(int)epdh.getColor()]);
+                else
+                    epdh.setRealColor("其他");
+            }
+
+            if(epdh.getLane()!=null)
+            {
+                if(asl!=null)
+                {
+                    Integer laneInfo=epdh.getLane();
+                    epdh.setLane(laneMap.get(laneInfo));
+                }
+            }
+
+            epdhList.add(epdh);
+        }
+
+        //利用工具类
+        XSSFWorkbook wb= ExcelUtils.getSimpleXSSFWorkbook(epdhList,ExcelPreCheckDataHistory.class,adll);
+
+        int flag=0;
+        try {
+            File file=new File(url);
+            if(!file.getParentFile().exists()){
+                file.getParentFile().mkdirs();
+            }
+            if(!file.exists()){
+                file.createNewFile();
+            }
+            file.setWritable(true);
+            FileOutputStream outputStream = new FileOutputStream(file);
+            wb.write(outputStream); // 把excel写到输出流中
+            outputStream.close(); // 关闭流
+            wb.close();
+
+
+
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        adll.setState(1);
+        downloadLogMapper.update(adll, new QueryWrapper<AwsDownloadLog>().eq("id",adll.getId()));
+
+    }
+
+
 }
